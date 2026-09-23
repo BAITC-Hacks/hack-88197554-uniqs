@@ -14,6 +14,12 @@ import { exerciseFor, PYTHON_STARTER, type PracticeResult } from "./exercises";
 interface Draft { code: string; answers: number[]; hints: number }
 const drafts = new Map<string, Draft>();
 
+function initials(name: string): string {
+  const words = name.split(/\s+/);
+  const letters = words.length > 1 ? words.map(word => word[0]) : [name[0], name.slice(1).match(/[A-Z]/)?.[0] ?? ""];
+  return letters.join("").slice(0, 2).toUpperCase();
+}
+
 export default function PracticeDialog({ event, employeeId, recommendation, onClose, onComplete }: {
   event: DevEvent;
   employeeId: string;
@@ -65,6 +71,10 @@ export default function PracticeDialog({ event, employeeId, recommendation, onCl
     <Dialog open onOpenChange={(open) => { if (!open && !busy) onClose(); }}>
       <DialogContent className="pointer-events-auto flex max-h-[90vh] w-[1080px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[1080px]" showCloseButton={!busy}>
         <div className="border-b px-7 py-5">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{initials(exercise.company.name)}</span>
+            <div className="min-w-0"><div className="text-sm font-semibold">Задание от {exercise.company.name}</div><p className="text-xs text-muted-foreground">{exercise.company.about}</p></div>
+          </div>
           <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
             <Badge variant="secondary">Практическое задание</Badge><span>5 минут · {exercise.kind === "python" ? "Python" : "Рабочий кейс"}</span>
           </div>

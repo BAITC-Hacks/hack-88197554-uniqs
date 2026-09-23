@@ -41,7 +41,7 @@ function EventRow({ event, accepted, profile, finished, onStart }: { event: DevE
       <div className="flex flex-wrap gap-1">{event.develops_skills.map(skill => <Badge key={skill.skill_id} variant="outline" className="text-[10px]">{skillName(skill.skill_id)}</Badge>)}</div>
       <div className="text-xs text-muted-foreground">{FORMAT[event.format]} · {event.duration_hours} ч{event.format !== "self_paced" && ` · ${session ? `сессия ${session}` : "дата уточняется"}`}</div>
       {done ? <p className="text-xs font-medium text-emerald-700">Выполнено · прогресс засчитан</p> : blocked ? <p className="text-xs text-muted-foreground">{blocked}</p> : <>
-        <div className="flex items-center gap-1.5 text-xs">{exercise.kind === "python" ? <Code2 className="size-3.5" /> : <Lightbulb className="size-3.5" />}{exercise.kind === "python" ? "Написать код и пройти 5 проверок" : "Решить 2 рабочих ситуации"}</div>
+        <div className="flex items-center gap-1.5 text-xs">{exercise.kind === "python" ? <Code2 className="size-3.5" /> : <Lightbulb className="size-3.5" />}{exercise.kind === "python" ? "Написать код и пройти 5 проверок" : "Решить 2 рабочих ситуации"}<span className="text-muted-foreground">· от {exercise.company.name}</span></div>
         <div className="flex gap-2"><Button size="sm" disabled={busy} onClick={onStart}><Play />{accepted ? "Выполнить задание" : "Взять и начать"}</Button><Button size="sm" variant="ghost" disabled={busy} onClick={() => void decline()}>Не сейчас</Button></div>
       </>}
     </div>

@@ -7,8 +7,10 @@ export interface Question {
   explanation: string;
   hint: string;
 }
+export interface Company { name: string; about: string }
 export interface Exercise {
   kind: "python" | "case";
+  company: Company;
   title: string;
   brief: string;
   takeaway: string;
@@ -117,29 +119,38 @@ const planningQuestions: Question[] = [
   },
 ];
 
+const COMPANIES = {
+  python: { name: "OpenAI", about: "Биллинг API сводит миллионы операций, и каждая сумма поступлений должна сходиться" },
+  data: { name: "Freedom", about: "Аналитики платежей хотят понять, каким выводам по данным можно доверять" },
+  engineering: { name: "Stripe", about: "Команда платежей ищет инженера, который не допустит двойных списаний" },
+  people: { name: "Google", about: "People Operations ищет того, кто поможет коллеге расти без давления" },
+  communication: { name: "inDrive", about: "Поддержка учится спокойно вести клиента, когда перевод задержался" },
+  planning: { name: "Astana Hub", about: "Стартапы акселератора проверяют идеи быстро и на минимальном шаге" },
+} satisfies Record<string, Company>;
+
 export function exerciseFor(event: DevEvent): Exercise {
   const skills = event.develops_skills.map(skill => skill.skill_id).join(" ");
   if (/PYTHON/.test(skills) || /\bpython\b/i.test(event.title)) {
     return {
-      kind: "python", title: "Посчитайте поступления на счёт",
-      brief: "Напишите total_income(amounts): функция получает список сумм операций и возвращает сумму только положительных значений. Списания и нули пропускайте. Для пустого списка верните 0. Используйте return, а не print.",
+      kind: "python", company: COMPANIES.python, title: "Посчитайте поступления на счёт",
+      brief: "OpenAI сверяет поступления на счета клиентов API. Напишите total_income(amounts): функция получает список сумм операций и возвращает сумму только положительных значений. Списания и нули пропускайте. Для пустого списка верните 0. Используйте return, а не print.",
       takeaway: "Вы обработали список операций, отфильтровали значения и учли пограничные случаи.",
       hints: ["Начните с total = 0. Пройдите по amounts циклом for.", "Внутри цикла проверьте if amount > 0: и только тогда увеличьте total.", "Внутри if используйте total += amount. return total должен быть после цикла, с отступом как у for."],
       questions: [],
     };
   }
-  const [title, questions] = /SQL|STATISTICS|ANALYTICS|DATA_|BI_TOOLS|AB_TESTING|ML_/.test(skills)
-    ? ["Разберите данные о платежах", dataQuestions] as const
+  const [title, questions, company] = /SQL|STATISTICS|ANALYTICS|DATA_|BI_TOOLS|AB_TESTING|ML_/.test(skills)
+    ? ["Разберите данные о платежах", dataQuestions, COMPANIES.data] as const
     : /JAVA|REACT|API_|SYSTEM_DESIGN|CLOUD|CONTAINERS|CICD|SECURITY|TEST_|OBSERVABILITY|HTML|WEB_/.test(skills)
-      ? ["Защитите платёж от повторного списания", engineeringQuestions] as const
+      ? ["Защитите платёж от повторного списания", engineeringQuestions, COMPANIES.engineering] as const
       : /HR_|TALENT|EMPLOYEE|LEARNING|COACH|LEADERSHIP|LABOR|COMPENSATION|MENTOR/.test(skills) || event.type === "mentoring"
-        ? ["Помогите коллеге выбрать шаг развития", peopleQuestions] as const
+        ? ["Помогите коллеге выбрать шаг развития", peopleQuestions, COMPANIES.people] as const
         : /COMMUNICATION|CUSTOMER|NEGOTIATION|SALES|CRM|PROSPECT|ACCOUNT|TROUBLESHOOT/.test(skills)
-          ? ["Помогите клиенту в сложной ситуации", communicationQuestions] as const
-          : ["Превратите идею в проверяемый шаг", planningQuestions] as const;
+          ? ["Помогите клиенту в сложной ситуации", communicationQuestions, COMPANIES.communication] as const
+          : ["Превратите идею в проверяемый шаг", planningQuestions, COMPANIES.planning] as const;
   return {
-    kind: "case", title, questions,
-    brief: `Практика по теме «${event.title}». Выберите действия в двух рабочих ситуациях. После проверки наставник объяснит каждое решение.`,
+    kind: "case", company, title, questions,
+    brief: `Кейс от ${company.name} по теме «${event.title}». Выберите действия в двух рабочих ситуациях. После проверки наставник объяснит каждое решение.`,
     hints: questions.map(question => question.hint),
     takeaway: "Вы разобрали рабочую ситуацию и выбрали действия, которые можно применить на практике.",
   };
