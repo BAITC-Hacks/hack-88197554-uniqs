@@ -2,6 +2,7 @@
 
 import { Progress } from "@/components/ui/progress";
 import { actions, useClientStore } from "@/lib/client-store";
+import { XpChipBar } from "@/features/character/XpLevel";
 
 export function ProfileChip() {
   const profile = useClientStore((s) => s.profile);
@@ -16,6 +17,7 @@ export function ProfileChip() {
         {employee.role} · {employee.grade}
         {target && ` → ${target.role === employee.role ? "" : `${target.role} `}${target.grade}`}
       </div>
+      <XpChipBar />
       {target && (
         <div className="mt-2 space-y-1.5">
           <Progress value={pct} aria-label={`Требования к ${target.grade}`} />

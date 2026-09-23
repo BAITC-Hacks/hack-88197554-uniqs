@@ -5,8 +5,10 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { skillName, useEvents } from "@/features/hud/data";
 import { useClientStore } from "@/lib/client-store";
-import type { HistoryStatus } from "@/lib/types";
+import type { HistoryRecord, HistoryStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { LevelBlock } from "./XpLevel";
+import { eventIndex, formatXp, xpForRecord } from "./xp";
 
 const FORMAT: Record<string, string> = { office: "офис", hybrid: "гибрид", remote: "удалённо" };
 
@@ -31,6 +33,8 @@ export default function CharacterPanel() {
   );
   const history = [...profile.history].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8);
   const titleOf = (id: string) => events.find((e) => e.event_id === id)?.title ?? id;
+  const byId = eventIndex(events);
+  const xpOfRecord = (h: HistoryRecord) => xpForRecord(byId.get(h.event_id), h).total;
 
   return (
     <div className="space-y-4 text-sm">
@@ -43,6 +47,8 @@ export default function CharacterPanel() {
           Стаж {employee.tenure_months} мес. · {FORMAT[employee.work_format]}
         </p>
       </div>
+
+      <LevelBlock />
 
       <div className="space-y-1.5">
         <div className="font-medium">
@@ -102,6 +108,9 @@ export default function CharacterPanel() {
             <span className="flex-1 truncate" title={h.event_id}>
               {titleOf(h.event_id)}
             </span>
+            {xpOfRecord(h) > 0 && (
+              <span className="text-xs font-semibold tabular-nums text-amber-700">+{formatXp(xpOfRecord(h))} XP</span>
+            )}
             <Badge className={STATUS[h.status].className}>{STATUS[h.status].label}</Badge>
           </div>
         ))}
