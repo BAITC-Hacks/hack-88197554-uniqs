@@ -1,5 +1,5 @@
-// Единая точка вызова LLM. Провайдер — LLM_PROVIDER (по умолчанию mock).
-// Реальный провайдер подключается здесь, когда появится ключ; остальной код не меняется.
+// Серверная точка вызова LLM. OPENAI_API_KEY включает OpenAI;
+// LLM_PROVIDER=mock явно оставляет офлайн-режим. Ключ не передаётся в UI.
 
 export interface LlmMessage {
   role: "user" | "assistant";
@@ -19,13 +19,63 @@ const mock: Provider = async (req) => {
   return last?.content ?? "";
 };
 
-const providers: Record<string, Provider> = { mock };
+const openai: Provider = async (req) => {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  if (!apiKey) throw new Error("Не задан OPENAI_API_KEY на сервере.");
+
+  let response: Response;
+  let data: {
+    status?: string;
+    output?: { type: string; content?: { type: string; text?: string }[] }[];
+  };
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: process.env.OPENAI_MODEL?.trim() || "gpt-6-sol",
+        instructions: req.system,
+        input: req.messages,
+        reasoning: { effort: "none" },
+        max_output_tokens: 1800,
+        store: false,
+      }),
+      signal: AbortSignal.timeout(8500),
+      cache: "no-store",
+    });
+    // Тело ошибки провайдера не выводим: оно может содержать части запроса.
+    if (!response.ok) {
+      const reason = response.status === 401 ? "проверьте API-ключ"
+        : response.status === 429 ? "проверьте баланс и лимиты API"
+          : response.status === 403 || response.status === 404 ? "проверьте доступ к модели"
+            : "сервис не смог обработать запрос";
+      throw new Error(`OpenAI HTTP ${response.status}: ${reason}.`);
+    }
+    data = await response.json();
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("OpenAI HTTP ")) throw error;
+    if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+      throw new Error("OpenAI не ответил за 8,5 секунды.");
+    }
+    throw new Error("Не удалось получить ответ OpenAI.");
+  }
+  if (data.status !== "completed") throw new Error("OpenAI не завершил ответ.");
+  const text = data.output?.filter((item) => item.type === "message")
+    .flatMap((item) => item.content ?? [])
+    .filter((part) => part.type === "output_text")
+    .map((part) => part.text ?? "").join("\n").trim();
+  if (!text) throw new Error("OpenAI вернул пустой ответ.");
+  return text;
+};
+
+const providers: Record<string, Provider> = { mock, openai };
 
 export function llmProvider(): string {
-  const name = process.env.LLM_PROVIDER ?? "mock";
-  return name in providers ? name : "mock";
+  return process.env.LLM_PROVIDER?.trim() || (process.env.OPENAI_API_KEY?.trim() ? "openai" : "mock");
 }
 
 export async function complete(req: LlmRequest): Promise<string> {
-  return providers[llmProvider()](req);
+  const name = llmProvider();
+  if (!Object.hasOwn(providers, name)) throw new Error("Неизвестный LLM_PROVIDER. Используйте openai или mock.");
+  return providers[name](req);
 }
