@@ -2,13 +2,14 @@
 
 // Общие детали интерьеров: комната без потолка (камера сверху), выход, интерактивные объекты, сидения.
 
-import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { MeshStandardMaterial, type Mesh } from "three";
 import { actions } from "@/lib/client-store";
 import { GEO, PALETTE, Part, mat, noiseTexture } from "../kit";
 import { playerPosition } from "../playerState";
-import { interactables, sceneActions, setWalkBounds, walkBounds, type Seat } from "../sceneState";
+import { interactables, sceneActions, setWalkBounds, useScene, walkBounds, type Seat } from "../sceneState";
 
 export const WALL_H = 3.2;
 /** ближняя к камере стена — низкий парапет, чтобы видеть комнату */
@@ -31,6 +32,7 @@ interface RoomProps {
   exit?: boolean;
   /** куда встаёт персонаж при входе: по умолчанию у двери, лицом внутрь */
   spawn?: [number, number];
+  spawnYaw?: number;
   children?: ReactNode;
 }
 
@@ -44,14 +46,15 @@ function floorMat(color: string) {
   return m;
 }
 
-export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b4", exit = true, spawn, children }: RoomProps) {
+export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b4", exit = true, spawn, spawnYaw = Math.PI, children }: RoomProps) {
   const hw = w / 2;
   const hd = d / 2;
+  const sx = spawn?.[0] ?? 0;
+  const sz = spawn?.[1] ?? hd - 1.6;
   useEffect(() => {
     setWalkBounds({ minX: -hw + 0.6, maxX: hw - 0.6, minZ: -hd + 0.6, maxZ: hd - 0.6, blockers: [] });
-    const s = spawn ?? [0, hd - 1.6];
-    sceneActions.setSpawn(s, Math.PI);
-  }, [hw, hd, spawn]);
+    sceneActions.setSpawn([sx, sz], spawnYaw);
+  }, [hw, hd, sx, sz, spawnYaw]);
 
   return (
     <group>
@@ -104,6 +107,8 @@ interface InteractableProps {
 /** объект, у которого работает E; подсказка появляется в радиусе */
 export function Interactable({ id, label, position, radius = 1.8, onInteract, ring = true }: InteractableProps) {
   const ref = useRef<Mesh>(null);
+  const bubble = useScene((s) => s.bubbles[id]);
+  const connected = useThree((s) => s.events.connected);
   useEffect(() => {
     interactables.set(id, { id, label, position, radius, onInteract });
     return () => {
@@ -120,9 +125,17 @@ export function Interactable({ id, label, position, radius = 1.8, onInteract, ri
       m.scale.set(k, k, 1);
     }
   });
-  if (!ring) return null;
   return (
-    <mesh ref={ref} geometry={GEO.ring} material={mat("#ffd166", { emissive: "#ffb703", intensity: 0.8 })} rotation={[-Math.PI / 2, 0, 0]} position={[position[0], 0.03, position[2]]} scale={[1.6, 1.6, 1]} visible={false} />
+    <group>
+      {ring && (
+        <mesh ref={ref} geometry={GEO.ring} material={mat("#ffd166", { emissive: "#ffb703", intensity: 0.8 })} rotation={[-Math.PI / 2, 0, 0]} position={[position[0], 0.03, position[2]]} scale={[1.6, 1.6, 1]} visible={false} />
+      )}
+      {bubble && connected && (
+        <Html position={[position[0], position[1] + 1.9, position[2]]} center zIndexRange={[6, 0]} pointerEvents="none">
+          <div className="pointer-events-none w-60 rounded-2xl bg-white px-3 py-2 text-center text-xs text-slate-800 shadow-md ring-1 ring-black/10">{bubble.text}</div>
+        </Html>
+      )}
+    </group>
   );
 }
 

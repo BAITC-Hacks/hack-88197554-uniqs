@@ -160,7 +160,7 @@ export function Player() {
     }
     if (s.teleport && s.teleport.seq !== m.seq) {
       m.seq = s.teleport.seq;
-      if (!street) sceneActions.exit();
+      if (!street) sceneActions.exit(true);
       pos.set(s.teleport.position[0], 0, s.teleport.position[1]);
       m.yaw = 0;
     }

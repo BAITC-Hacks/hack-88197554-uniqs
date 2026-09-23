@@ -4,6 +4,7 @@
 // Тот же паттерн, что client-store (useSyncExternalStore), но живёт внутри фичи city.
 
 import { useSyncExternalStore } from "react";
+import { getPlace } from "@/lib/world";
 import type { CharacterAction } from "./Character";
 
 export type SceneMode = "street" | "interior";
@@ -130,13 +131,20 @@ export const sceneActions = {
     });
   },
 
-  /** выйти на улицу к двери здания */
-  exit() {
+  /** выйти на улицу к двери здания; keepPosition — телепорт из HUD уже поставил персонажа */
+  exit(keepPosition = false) {
     const cur = state.interior;
     if (!cur) return;
+    const place = getPlace(cur.placeId);
     transition(() => {
       interactables.clear();
-      setScene({ mode: "street", interior: null, seated: null, bubbles: {} });
+      setScene({
+        mode: "street",
+        interior: null,
+        seated: null,
+        bubbles: {},
+        spawn: place && !keepPosition ? { position: place.entrance, yaw: 0, seq: ++spawnSeq } : state.spawn,
+      });
     });
   },
 
