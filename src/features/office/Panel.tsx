@@ -6,6 +6,7 @@ import { GRADES, type PanelProps } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { DEPARTMENT_COLOR, getPlace, gradeFloor } from "@/lib/world";
 import { DEPARTMENT_COMPANY } from "@/features/city/companies";
+import { PlaceKnowledge } from "@/features/knowledge/Guide";
 
 export default function OfficePanel({ placeId }: PanelProps) {
   const profile = useClientStore((s) => s.profile);
@@ -30,6 +31,7 @@ export default function OfficePanel({ placeId }: PanelProps) {
         </h2>
       </div>
       <p className="text-muted-foreground">Сотрудников в отделе: {headcount}</p>
+      <PlaceKnowledge placeId={placeId} />
 
       <div className="space-y-1.5">
         {[...GRADES].reverse().map((grade) => {

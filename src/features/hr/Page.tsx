@@ -10,6 +10,7 @@ import { AccessPanel } from "./AccessPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 import { ApiError, fieldClass, hrRequest } from "./client";
 import { HR_DEMO_ACCESS } from "./demo-access";
+import { HistoricalReport } from "./HistoricalReport";
 import { PlanEditor, PlansPanel } from "./PlansPanel";
 import { ROLE_LABELS, type Account, type EmployeeView, type HrWorkspace, type PlanView } from "./types";
 
@@ -93,6 +94,7 @@ function Workspace({ account, onLogout }: { account: Account; onLogout: () => vo
       </>}
       {data && activeTab === "plans" && <PlansPanel data={data} onReload={reload} onEdit={(plan) => { const employee = data.employees.find((e) => e.id === plan.employeeId); if (employee) setEditor({ employee, plan }); }} onCreate={() => { if (focused) setEditor({ employee: focused }); else setTab("overview"); }} />}
       {data && activeTab === "templates" && viewer.permissions.plans && <TemplatesPanel onReload={reload} />}
+      {data && activeTab === "overview" && <HistoricalReport data={data} />}
       {data && activeTab === "access" && <AccessPanel data={data} onSaved={reload} />}
     </div>
     {editor && data && <PlanEditor key={editor.plan?.id ?? editor.employee.id} employee={editor.employee} plan={editor.plan} data={data} onClose={() => setEditor(null)} onSaved={async () => { setEditor(null); setTab("plans"); await reload(); }} />}

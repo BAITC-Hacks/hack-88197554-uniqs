@@ -1,1 +1,1 @@
-export { postPracticeRoute as POST } from "@/features/venues/api";
+export { getPracticeRoute as GET, postPracticeRoute as POST } from "@/features/venues/api";

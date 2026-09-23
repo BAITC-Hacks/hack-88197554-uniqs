@@ -7,6 +7,7 @@ import { actions, getState, useClientStore } from "@/lib/client-store";
 import { GROUND, INTERACT_DISTANCE, PLACES, getPlace } from "@/lib/world";
 import { GRADE_CHARACTER, useAvatar } from "./avatar";
 import { Character, type CharacterAction } from "./Character";
+import { cameraInputBlocked, cameraLook, getCameraMode, resetCameraLook } from "./cameraState";
 import { GEO, mat } from "./kit";
 import { playerPosition, playerYaw } from "./playerState";
 import { getScene, interactables, sceneActions, walkBounds } from "./sceneState";
@@ -41,7 +42,7 @@ const pressed = { up: false, down: false, left: false, right: false, run: false 
 function useMovementKeys() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (getScene().controlsLocked) return;
+      if (cameraInputBlocked()) return;
       if (e.code === "ShiftLeft" || e.code === "ShiftRight") pressed.run = true;
       const key = KEYS[e.code];
       if (!key || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
@@ -145,6 +146,9 @@ export function Player() {
     const pos = playerPosition;
     const street = scene.mode === "street";
     const now = performance.now();
+    const firstPerson = getCameraMode() === "first-person" && !scene.controlsLocked;
+    g.visible = !firstPerson;
+    if (marker.current && firstPerson) marker.current.visible = false;
 
     // Телепорт: первый кадр, новый seq из HUD или спавн после смены сцены.
     if (m.seq === -1 && !s.teleport) {
@@ -156,20 +160,23 @@ export function Player() {
       if (!street) sceneActions.exit(s.teleport.position);
       pos.set(s.teleport.position[0], 0, s.teleport.position[1]);
       m.yaw = 0;
+      resetCameraLook(m.yaw);
     }
     if (scene.spawn && scene.spawn.seq !== m.spawnSeq) {
       m.spawnSeq = scene.spawn.seq;
       pos.set(scene.spawn.position[0], 0, scene.spawn.position[1]);
       m.yaw = scene.spawn.yaw;
+      resetCameraLook(m.yaw);
       actions.clearMoveTarget();
     }
 
     // Жест (cheer / interact): проигрывается один раз, потом idle.
-    if (scene.controlsLocked || scene.fade) {
+    if (cameraInputBlocked()) {
       pressed.up = pressed.down = pressed.left = pressed.right = pressed.run = false;
       action.current = "idle";
       g.position.set(pos.x, pos.y, pos.z);
       g.rotation.y = m.yaw;
+      playerYaw.value = m.yaw;
       return;
     }
 
@@ -183,6 +190,12 @@ export function Player() {
     let dx = (pressed.right ? 1 : 0) - (pressed.left ? 1 : 0);
     let dz = (pressed.down ? 1 : 0) - (pressed.up ? 1 : 0);
     const keys = dx !== 0 || dz !== 0;
+    if (firstPerson && keys) {
+      const right = dx;
+      const forward = -dz;
+      dx = -right * Math.cos(cameraLook.yaw) + forward * Math.sin(cameraLook.yaw);
+      dz = right * Math.sin(cameraLook.yaw) + forward * Math.cos(cameraLook.yaw);
+    }
 
     // Сидит: встаёт при любом движении.
     if (scene.seated) {
@@ -234,7 +247,7 @@ export function Player() {
     if (moving) {
       pos.x += dx * step;
       pos.z += dz * step;
-      m.yaw = angleLerp(m.yaw, Math.atan2(dx, dz), 1 - Math.exp(-dt * 14));
+      m.yaw = firstPerson ? cameraLook.yaw : angleLerp(m.yaw, Math.atan2(dx, dz), 1 - Math.exp(-dt * 14));
       if (m.gestureUntil) m.gestureUntil = 0;
     }
 
@@ -298,12 +311,12 @@ export function Player() {
     }
     g.position.set(pos.x, 0, pos.z);
     g.rotation.y = m.yaw;
-    playerYaw.value = m.yaw;
+    playerYaw.value = firstPerson ? cameraLook.yaw : m.yaw;
 
     const mk = marker.current;
     if (mk) {
       const target = getState().moveTarget;
-      mk.visible = !!target;
+      mk.visible = !!target && !firstPerson;
       if (target) {
         mk.position.set(target.position[0], 0.06, target.position[1]);
         mk.rotation.z += dt * 2;

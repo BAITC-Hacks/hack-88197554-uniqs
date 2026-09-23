@@ -4,6 +4,7 @@ import { GRADES } from "@/lib/types";
 import { body, currentAccount, HrError, inScope, json, requirePermission, route, scopedEmployee, string } from "./access";
 import { candidatesFor, employeeView, skillOverview } from "./competencies";
 import { hrState, publicAccount, saveHrState } from "./state";
+import { getHrReport } from "./summary";
 import type { Account, HrWorkspace, LearningPlan, PlanStep, PlanView } from "./types";
 
 function visiblePlans(account: Account): LearningPlan[] {
@@ -31,10 +32,12 @@ export const getHrRoute = route((request) => {
   if (query && !account.permissions.profiles && account.role !== "employee") throw new HrError("Для поиска сотрудников нужен доступ к карточкам", 403);
   const employees = scope.filter((e) => (!department || e.department === department) && (!grade || e.grade === grade) && (!query || `${e.full_name} ${e.employee_id} ${e.role}`.toLowerCase().includes(query))).map(employeeView);
   const employeeIds = new Set(employees.map((e) => e.id));
+  const report = account.permissions.overview ? getHrReport(scope.filter(e => employeeIds.has(e.employee_id))) : null;
+  if (report && !account.permissions.profiles) report.summary.noStep = [];
   const plans = visiblePlans(account).filter((p) => employeeIds.has(p.employeeId));
   for (const employee of employees) employee.planCount = plans.filter((p) => p.employeeId === employee.id && p.state !== "archived").length;
   const result: HrWorkspace = {
-    account, asOf: AS_OF, departments,
+    account, asOf: AS_OF, departments, report,
     employees: account.permissions.profiles || account.role === "employee" ? employees : [],
     skills: getSkills().map((s) => ({ id: s.skill_id, name: s.name })), plans: plans.map(planView),
     overview: account.permissions.overview ? { employees: employees.length, withGaps: employees.filter((e) => e.gaps.length).length, withoutPlan: employees.filter((e) => e.gaps.length && !hrState().plans.some((p) => p.employeeId === e.id && p.state !== "archived")).length, activePlans: hrState().plans.filter((p) => employeeIds.has(p.employeeId) && p.state === "published").length, skills: skillOverview(employees) } : null,

@@ -1,4 +1,5 @@
 import type { Department, DevEvent, Employee, Gap, Target } from "@/lib/types";
+import type { getHrReport } from "./summary";
 
 export type HrRole = "admin" | "hr" | "manager" | "employee";
 export const ROLE_LABELS: Record<HrRole, string> = { admin: "Администратор", hr: "HR", manager: "Руководитель", employee: "Сотрудник" };
@@ -39,6 +40,7 @@ export interface SkillOverview {
   assessed: number; below: number; criticalBelow: number;
 }
 export interface HrWorkspace {
+  report: ReturnType<typeof getHrReport> | null;
   account: Account; asOf: string; departments: Department[]; employees: EmployeeView[];
   skills: { id: string; name: string }[]; plans: PlanView[];
   overview: { employees: number; withGaps: number; withoutPlan: number; activePlans: number; skills: SkillOverview[] } | null;

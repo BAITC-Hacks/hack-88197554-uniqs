@@ -1,10 +1,14 @@
 import { getEvent } from "@/lib/store";
 import type { LlmMessage } from "@/lib/llm";
 import type { Profile, Recommendation } from "@/lib/types";
+import { knowledgeReply } from "@/features/knowledge/answers";
+import type { KnowledgeContext } from "@/features/knowledge/context";
 
-/** Прозрачный демо-режим: только простые ограничения; свободный диалог требует OpenAI. */
-export function offlineReply(profile: Profile, candidates: Recommendation[], messages: LlmMessage[]) {
+/** Справка и персональные пробелы доступны без сети; подбор сохраняет ограничения сотрудника. */
+export function offlineReply(profile: Profile, candidates: Recommendation[], messages: LlmMessage[], knowledge?: KnowledgeContext) {
   const latest = messages.at(-1)?.content.toLowerCase() ?? "";
+  const answer = knowledge && knowledgeReply(latest, knowledge);
+  if (answer) return { message: answer, recommendations: [] as Recommendation[] };
   const goal = profile.target ? `${profile.target.role} · ${profile.target.grade}` : "развитие навыков";
   let maxHours = Infinity;
   let format: string | undefined;
@@ -34,13 +38,13 @@ export function offlineReply(profile: Profile, candidates: Recommendation[], mes
   }
   const wantsSteps = !messages.length || /подбер|предлож|шаг|начать|обуч|курс|час|онлайн|офлайн|очно|темпе|senior|грейд|расти|развити|вариант/.test(latest);
   if (!wantsSteps) return {
-    message: "Я пока в демо-режиме и не могу полноценно разобрать свободный вопрос. Могу показать рассчитанные шаги и отфильтровать их по длительности и формату. Например: «Подбери обучение онлайн до 4 часов».",
+    message: "В базе знаний нет точного ответа на этот вопрос. Могу разобрать профиль, объяснить возможности города и HR, найти причины пробелов каталога или предложить обучение. Для сведений о реальном проекте нужны его описание, ожидаемый результат и требования к навыкам — их можно уточнить у руководителя.",
     recommendations: [] as Recommendation[],
   };
   return {
     message: filtered.length
-      ? `Цель профиля — ${goal}. Вот шаги из предварительного подбора${Number.isFinite(maxHours) ? ` длительностью до ${maxHours} ч` : ""}${format ? ", с учётом выбранного формата" : ""}. Это демо-подбор по правилам; OpenAI пока не подключён.`
-      : "Среди предварительно подобранных шагов нет подходящих под эти ограничения. Можно изменить формат или увеличить общее время на активность. Сейчас доступен демо-подбор по правилам; для свободного диалога нужен OpenAI.",
+      ? `Цель профиля — ${goal}. Вот шаги из предварительного подбора${Number.isFinite(maxHours) ? ` длительностью до ${maxHours} ч` : ""}${format ? ", с учётом выбранного формата" : ""}. Подбор рассчитан по правилам: цель, польза для навыков и история участия.`
+      : `Среди предварительно подобранных шагов нет подходящих под эти ограничения. ${knowledge?.summary ?? "Можно изменить формат или общее время на активность."} Можно спросить: «Какие пробелы в моём профиле?» — покажу причины и идеи практики для обсуждения с руководителем.`,
     recommendations: filtered,
   };
 }
