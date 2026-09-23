@@ -13,7 +13,7 @@ const ZOOM_MAX = 2.2;
 /** дальше этого камера не догоняет, а прыгает (телепорт) */
 const SNAP_DISTANCE = 25;
 /** в интерьере камера ближе и чуть ниже */
-const INTERIOR_ZOOM = 0.55;
+const INTERIOR_ZOOM = 0.62;
 
 const desired = new Vector3();
 const lookAt = new Vector3();

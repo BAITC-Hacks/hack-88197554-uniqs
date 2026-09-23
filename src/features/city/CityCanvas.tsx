@@ -15,6 +15,7 @@ import { Interior } from "./interiors/Interior";
 import { ElevatorPanel } from "./interiors/ElevatorPanel";
 import { preloadInteriors, preloadStreet } from "./models";
 import { Player } from "./Player";
+import { DeltaPopup } from "./QuestMarkers";
 import { useScene } from "./sceneState";
 import { Street } from "./Street";
 
@@ -49,6 +50,7 @@ function World() {
     <>
       {mode === "street" ? <Street /> : <Interior />}
       <Player />
+      <DeltaPopup />
       <CameraRig />
       <Hint3D />
     </>

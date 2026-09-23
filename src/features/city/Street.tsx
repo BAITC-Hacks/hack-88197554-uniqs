@@ -7,6 +7,7 @@ import { Decor } from "./Decor";
 import { Ground } from "./Ground";
 import { Npcs } from "./Npc";
 import { Places } from "./Places";
+import { QuestMarkers } from "./QuestMarkers";
 import { setWalkBounds } from "./sceneState";
 
 export function Street() {
@@ -19,6 +20,7 @@ export function Street() {
       <Decor />
       <Places />
       <Npcs />
+      <QuestMarkers />
     </group>
   );
 }
