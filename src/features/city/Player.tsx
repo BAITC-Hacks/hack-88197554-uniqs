@@ -192,7 +192,7 @@ export function Player() {
       } else {
         pos.set(scene.seated.position[0], scene.seated.position[1], scene.seated.position[2]);
         m.yaw = scene.seated.yaw;
-        action.current = "sit";
+        action.current = scene.seated.floor ? "sitfloor" : "sit";
         g.position.set(pos.x, pos.y, pos.z);
         g.rotation.y = m.yaw;
         playerYaw.value = m.yaw;

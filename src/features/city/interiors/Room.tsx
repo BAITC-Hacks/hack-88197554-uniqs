@@ -46,15 +46,18 @@ function floorMat(color: string) {
   return m;
 }
 
-export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b4", exit = true, spawn, spawnYaw = Math.PI, children }: RoomProps) {
-  const hw = w / 2;
-  const hd = d / 2;
-  const sx = spawn?.[0] ?? 0;
-  const sz = spawn?.[1] ?? hd - 1.6;
+/** границы ходьбы и точка появления: общий хук для прямоугольных и круглых комнат */
+export function useRoomBounds(hw: number, hd: number, sx: number, sz: number, spawnYaw: number) {
   useEffect(() => {
     setWalkBounds({ minX: -hw + 0.6, maxX: hw - 0.6, minZ: -hd + 0.6, maxZ: hd - 0.6, blockers: [] });
     sceneActions.setSpawn([sx, sz], spawnYaw);
   }, [hw, hd, sx, sz, spawnYaw]);
+}
+
+export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b4", exit = true, spawn, spawnYaw = Math.PI, children }: RoomProps) {
+  const hw = w / 2;
+  const hd = d / 2;
+  useRoomBounds(hw, hd, spawn?.[0] ?? 0, spawn?.[1] ?? hd - 1.6, spawnYaw);
 
   return (
     <group>
@@ -80,7 +83,7 @@ export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b
 }
 
 /** выход на улицу: проём в низком парапете, коврик и светящаяся табличка, ничего не заслоняет камеру */
-function ExitDoor({ z }: { z: number }) {
+export function ExitDoor({ z }: { z: number }) {
   return (
     <group position={[0, 0, z]}>
       <Part position={[0, 0, -0.35]} size={[2.6, 0.05, 1.2]} color="#5a6270" shadow={false} />
@@ -153,8 +156,8 @@ export function Blocker({ x, z, r }: { x: number; z: number; r: number }) {
 }
 
 /** место, куда можно сесть: E → персонаж садится лицом по yaw */
-export function SeatSpot({ id, position, yaw, label = "Сесть" }: { id: string; position: [number, number, number]; yaw: number; label?: string }) {
-  const seat = useMemo<Seat>(() => ({ id, position, yaw }), [id, position, yaw]);
+export function SeatSpot({ id, position, yaw, label = "Сесть", floor }: { id: string; position: [number, number, number]; yaw: number; label?: string; floor?: boolean }) {
+  const seat = useMemo<Seat>(() => ({ id, position, yaw, floor }), [id, position, yaw, floor]);
   const hint = useMemo<[number, number, number]>(() => [position[0] + Math.sin(yaw) * 0.6, 0, position[2] + Math.cos(yaw) * 0.6], [position, yaw]);
   return <Interactable id={id} label={label} position={hint} radius={1.5} onInteract={() => sceneActions.sit(seat)} />;
 }
