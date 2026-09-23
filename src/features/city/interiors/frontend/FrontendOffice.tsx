@@ -4,6 +4,7 @@ import { useMemo, Suspense } from "react";
 import { type ThreeEvent } from "@react-three/fiber";
 import { Box3, MeshStandardMaterial, Shape, Vector3 } from "three";
 import { actions } from "@/lib/client-store";
+import { DEPARTMENT_COMPANY } from "../../companies";
 import { Part, Sign, textTexture } from "../../kit";
 import { FURNITURE, useModel } from "../../models";
 import { sceneActions } from "../../sceneState";
@@ -176,7 +177,7 @@ function Contents({ room }: { room: FrontendRoom }) {
     <Part position={[x, 0, z - 0.2]} size={[6.5, 1.05, 1.05]} color={TEAL} />
     <Part position={[x, 1.05, z - 0.2]} size={[6.8, 0.12, 1.2]} color={OAK} />
     {[-2.6, -1.3, 0, 1.3, 2.6].map((dx) => <Blocker key={dx} x={x + dx} z={z - 0.2} r={0.65} />)}
-    <Sign text="FRONTEND" color={TEAL} width={3.2} height={0.45} position={[x, 0.7, z + 0.4]} />
+    <Sign text={DEPARTMENT_COMPANY["Frontend Development"]} color={TEAL} width={3.2} height={0.45} position={[x, 0.7, z + 0.4]} />
     <Suspense fallback={null}><Model url={FURNITURE.couch} x={-5} z={16.5} height={1} yaw={Math.PI / 2} /><Model url={FURNITURE.couch} x={5} z={16.5} height={1} yaw={-Math.PI / 2} /></Suspense>
     <Interactable id="frontend-reception" label="Карьерная траектория" position={[0, 0, 15.2]} onInteract={() => actions.openPanel("office", FRONTEND_ID)} />
   </>;

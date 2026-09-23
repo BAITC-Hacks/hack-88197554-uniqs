@@ -6,6 +6,7 @@ import { Html } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { Group } from "three";
+import { DEPARTMENT_COMPANY } from "./companies";
 import { Character, type CharacterAction } from "./Character";
 import { alongLoop } from "./Decor";
 import type { CharacterId } from "./models";
@@ -19,7 +20,7 @@ const LINES = [
   "Кофе в Кофейне наставников лучший в городе.",
   "Опять компаенс в ЦОН… ничего не качает, зато обязательно.",
   "Сәлем! Как продвигается твой квест?",
-  "Слышал, в Data-башне повесили новые дашборды.",
+  `Слышал, в офисе ${DEPARTMENT_COMPANY["Data & Analytics"]} повесили новые дашборды.`,
   "Hi! Mentor track really helped me get to Senior.",
   "Public Speaking Club собирается в амфитеатре.",
   "Хочу на Lead, но сначала закрыть критичные навыки.",

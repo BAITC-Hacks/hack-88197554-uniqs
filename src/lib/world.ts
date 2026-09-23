@@ -4,6 +4,7 @@
 
 import type { Department, DevEvent, Employee, EventType, Grade, PanelId, Place } from "./types";
 import { GRADES } from "./types";
+import { DEPARTMENT_COMPANY } from "@/features/city/companies";
 
 export const TOWER_FLOOR_HEIGHT = 3.2;
 export const TOWER_FLOORS = 4;
@@ -52,7 +53,7 @@ function buildPlaces(): Place[] {
     places.push({
       id: `office-${d.slug}`,
       kind: "office",
-      name: `Башня ${d.department}`,
+      name: DEPARTMENT_COMPANY[d.department],
       position,
       radius,
       entrance: entranceOf(position, radius),

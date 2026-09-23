@@ -38,8 +38,8 @@ export function Lobby({ place }: { place: Place }) {
     sceneActions.say("cooler", "Буль-буль… Свежая вода. Уже не Junior-кулер!");
   }, []);
   const talk = useCallback(() => {
-    sceneActions.say("reception", `Добро пожаловать в башню ${style.short}! Лифт справа, доска отдела слева.`);
-  }, [style.short]);
+    sceneActions.say("reception", `Добро пожаловать в офис ${style.company}! Лифт справа, доска отдела слева.`);
+  }, [style.company]);
 
   return (
     <Room w={18} d={14} floor="#e3ddd1" wall="#f4f0e8">
@@ -50,7 +50,7 @@ export function Lobby({ place }: { place: Place }) {
         <Character model="mage" action="idle" />
       </group>
       <Interactable id="reception" label="Поговорить" position={RECEPTION_SPOT} radius={1.8} onInteract={talk} />
-      <TextBoard position={[0, 2.3, -6.75]} text={`Башня ${style.short}`} sub={dept} color={color} width={5} height={1.3} />
+      <TextBoard position={[0, 2.3, -6.75]} text={style.company} sub={dept} color={color} width={5} height={1.3} />
       <Part position={[0, 0, -6.55]} size={[12, 0.05, 0.4]} color={color} shadow={false} />
 
       {/* лифт */}

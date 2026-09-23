@@ -1,5 +1,7 @@
 // Тексты интро: общие для роадмапа (клиент) и чата-гида (сервер).
 
+import { DEPARTMENT_COMPANY } from "@/features/city/companies";
+
 export interface IntroStep {
   id: string;
   title: string;
@@ -20,7 +22,7 @@ export const STEPS: IntroStep[] = [
   {
     id: "venues",
     title: "Площадки обучения",
-    text: "Курсы, менторство, клубы и практические задания от компаний: OpenAI, Freedom, Stripe, Astana Hub и других.",
+    text: `Курсы, менторство, клубы и практические задания в демо-городе компаний: ${Object.values(DEPARTMENT_COMPANY).join(", ")}.`,
   },
   {
     id: "mentor",

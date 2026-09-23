@@ -1,4 +1,5 @@
 import type { Place } from "@/lib/types";
+import { DEPARTMENT_COMPANY } from "../../companies";
 
 // Shared by office towers except Frontend. Based on the Backend four-floor plan.
 // Coordinates are scene units, not construction dimensions or seating capacity.
@@ -6,18 +7,8 @@ export function usesBackendOffice(place: Place): boolean {
   return place.kind === "office" && place.id !== "office-frontend";
 }
 
-const OFFICE_NAMES: Record<string, string> = {
-  "office-backend": "Backend",
-  "office-data": "Data & Analytics",
-  "office-qa": "QA",
-  "office-product": "Product",
-  "office-hr": "HR",
-  "office-sales": "Sales",
-  "office-support": "Support",
-};
-
 export function officeTitle(place: Place): string {
-  return OFFICE_NAMES[place.id] ?? place.department ?? place.name.replace(/^Башня /, "");
+  return place.department ? DEPARTMENT_COMPANY[place.department] : place.name;
 }
 
 export const WIDTH = 42;
