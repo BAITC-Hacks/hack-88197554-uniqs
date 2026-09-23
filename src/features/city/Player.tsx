@@ -18,7 +18,7 @@ const ARRIVE = 0.3;
 const BODY_PAD = 0.4;
 const START: [number, number] = [0, 8];
 /** места с интерьером: E у двери входит внутрь, а не открывает панель */
-const ENTERABLE = new Set(["office", "venue", "mentor"]);
+const ENTERABLE = new Set(["office", "venue", "mentor", "home", "soon"]);
 
 /** внешность по грейду: класс приключенца растёт вместе с карьерой */
 const GRADE_CHARACTER: Record<Grade, CharacterId> = {
@@ -160,7 +160,7 @@ export function Player() {
     }
     if (s.teleport && s.teleport.seq !== m.seq) {
       m.seq = s.teleport.seq;
-      if (!street) sceneActions.exit();
+      if (!street) sceneActions.exit(s.teleport.position);
       pos.set(s.teleport.position[0], 0, s.teleport.position[1]);
       m.yaw = 0;
     }
@@ -192,7 +192,7 @@ export function Player() {
       } else {
         pos.set(scene.seated.position[0], scene.seated.position[1], scene.seated.position[2]);
         m.yaw = scene.seated.yaw;
-        action.current = "sit";
+        action.current = scene.seated.floor ? "sitfloor" : "sit";
         g.position.set(pos.x, pos.y, pos.z);
         g.rotation.y = m.yaw;
         playerYaw.value = m.yaw;
@@ -215,7 +215,11 @@ export function Player() {
       if (dist < ARRIVE) {
         const openId = s.moveTarget.openPlaceId;
         actions.clearMoveTarget();
-        if (openId) actions.openPlace(openId);
+        if (openId) {
+          const place = getPlace(openId);
+          if (place && ENTERABLE.has(place.kind)) sceneActions.enter(openId);
+          else actions.openPlace(openId);
+        }
       } else {
         dx = tx / dist;
         dz = tz / dist;
