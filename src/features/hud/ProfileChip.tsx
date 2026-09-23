@@ -3,16 +3,19 @@
 import { Progress } from "@/components/ui/progress";
 import { actions, useClientStore } from "@/lib/client-store";
 import { XpChipBar } from "@/features/character/XpLevel";
+import { useHeroNick } from "@/features/character/heroStore";
 
 export function ProfileChip() {
   const profile = useClientStore((s) => s.profile);
+  const nick = useHeroNick(profile?.employee.employee_id);
   if (!profile) return null;
   const { employee, target, gradeProgress } = profile;
   const pct = gradeProgress.total ? (gradeProgress.met / gradeProgress.total) * 100 : 100;
 
   return (
     <button type="button" aria-label={`Открыть профиль: ${employee.full_name}`} onClick={() => actions.openPanel("character")} className="pointer-events-auto w-72 rounded-xl bg-white/95 px-4 py-3 text-left text-xs shadow-sm ring-1 ring-foreground/10 hover:bg-white">
-      <div className="text-sm font-medium">{employee.full_name}</div>
+      <div className="text-sm font-medium">{nick ?? employee.full_name}</div>
+      {nick && <div className="text-muted-foreground">{employee.full_name}</div>}
       <div className="text-muted-foreground">
         {employee.role} · {employee.grade}
         {target && ` → ${target.role === employee.role ? "" : `${target.role} `}${target.grade}`}
