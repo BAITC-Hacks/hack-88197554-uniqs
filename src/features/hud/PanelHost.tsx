@@ -12,6 +12,8 @@ export function PanelHost() {
   const open = useClientStore((s) => s.openPanel);
   if (!open) return null;
   const Panel = PANELS[open.panel];
+  // лист героя — свой полноэкранный оверлей, без правой колонки
+  if (open.panel === "character") return <Panel placeId={open.placeId} />;
 
   return (
     <Card className="pointer-events-auto absolute top-16 right-3 bottom-3 w-[420px] gap-0 bg-white/95 py-0 shadow-lg backdrop-blur">

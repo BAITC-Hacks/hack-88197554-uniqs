@@ -7,7 +7,8 @@ import { actions } from "@/lib/client-store";
 import { Part, Sign, textTexture } from "../../kit";
 import { FURNITURE, useModel } from "../../models";
 import { sceneActions } from "../../sceneState";
-import { Blocker, ExitDoor, Interactable, SeatSpot, useRoomBounds } from "../Room";
+import { Blocker, ExitDoor, Interactable, useRoomBounds } from "../Room";
+import { OfficeSeat } from "../Colleague";
 import { FRONTEND_FLOORS, FRONTEND_ID, OUTLINE, frontendFloorIndex, type FrontendRoom, type Point2 } from "./layout";
 
 const TEAL = "#447c74";
@@ -77,7 +78,7 @@ function Model({ url, x, z, height, yaw = 0 }: { url: string; x: number; z: numb
 }
 
 function Chair({ x, z, yaw = Math.PI, id }: { x: number; z: number; yaw?: number; id: string }) {
-  return <><Suspense fallback={null}><Model url={FURNITURE.chairA} x={x} z={z} height={0.95} yaw={yaw} /></Suspense><SeatSpot id={id} position={[x, 0, z]} yaw={yaw} /></>;
+  return <><Suspense fallback={null}><Model url={FURNITURE.chairA} x={x} z={z} height={0.95} yaw={yaw} /></Suspense><OfficeSeat id={`frontend-${id}`} x={x} z={z} yaw={yaw} /></>;
 }
 
 function Plant({ x, z }: { x: number; z: number }) {

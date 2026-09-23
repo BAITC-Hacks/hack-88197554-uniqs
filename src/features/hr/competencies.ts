@@ -1,23 +1,13 @@
 import { AS_OF, getEmployee, getEvent, getEvents, getHistory, getRoleProfile, getSkills } from "@/lib/store";
-import { gradeProgressOf, targetFor } from "@/features/engine/profile";
+import { getProfile } from "@/features/engine/profile";
 import type { Employee } from "@/lib/types";
 import type { Candidate, EmployeeView, SkillOverview } from "./types";
 
 export function employeeView(employee: Employee): EmployeeView {
-  const target = targetFor(employee);
+  const profile = getProfile(employee.employee_id)!;
+  const { target, effectiveSkills: skills, gradeProgress: progress } = profile;
   const requirement = target ? getRoleProfile(target.role, target.grade) : undefined;
-  const skills = { ...employee.skills };
-  // Historical dataset gains since review. The current engine already writes today's
-  // completions into employee.skills, so those records must not be added twice here.
-  const history = getHistory(employee.employee_id).filter((h) => h.status === "completed" && h.date > employee.last_review_date && h.date < AS_OF);
-  for (const record of history) {
-    for (const gain of getEvent(record.event_id)?.develops_skills ?? []) {
-      const current = skills[gain.skill_id] ?? 0;
-      skills[gain.skill_id] = Math.max(current, Math.min(5, gain.max_level, current + gain.gain));
-    }
-  }
   const requirements = requirement?.required_skills ?? {};
-  const progress = gradeProgressOf(skills, requirement);
   return {
     id: employee.employee_id, name: employee.full_name, department: employee.department,
     role: employee.role, grade: employee.grade, target, skills, requirements,

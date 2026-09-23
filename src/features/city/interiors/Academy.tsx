@@ -11,6 +11,7 @@ import { FURNITURE, Model, type CharacterId } from "../models";
 import { sceneActions } from "../sceneState";
 import { DashboardScreen, Monitor, TextBoard } from "./props";
 import { Blocker, Interactable, Room, SeatSpot } from "./Room";
+import { ActivitySpot } from "./ActivitySpot";
 
 const ROWS = [
   { z: -1.5, y: 0, npc: [1, 3] },
@@ -25,6 +26,7 @@ export function Academy({ place }: { place: Place }) {
   const lecturer = useCallback(() => sceneActions.say("lecturer", "Сегодня: SQL for Analysts. Садись, лекция уже идёт."), []);
   return (
     <Room w={18} d={16} floor="#d8cfc0" wall="#efe9dd" spawn={[6.5, 6.4]}>
+      <ActivitySpot id="academy-start" x={3} z={6.3} kind="venue" placeId={place.id} />
       {/* кафедра */}
       <Part position={[0, 0, -6]} size={[12, 0.35, 3.4]} color={PALETTE.stone} />
       <Part position={[2.4, 0.35, -5.6]} size={[1.2, 1.1, 0.6]} color={PALETTE.wood} />

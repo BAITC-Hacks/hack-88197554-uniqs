@@ -3,9 +3,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
-import { getPlace } from "@/lib/world";
-import { usesOfficePlan } from "./interiors/officePlans";
-import { usesBackendOffice } from "./interiors/backend/layout";
 import { playerPosition } from "./playerState";
 import { getScene } from "./sceneState";
 
@@ -15,9 +12,8 @@ const ZOOM_MIN = 0.28;
 const ZOOM_MAX = 2.2;
 /** дальше этого камера не догоняет, а прыгает (телепорт) */
 const SNAP_DISTANCE = 25;
-/** Изометрический обзор комнат, как в офисном прототипе Елнура. */
-const OFFICE_ZOOM = 1.8;
-const ROOM_ZOOM = 0.62;
+/** Внутри видим персонажа и ближайшие занятия, а не весь план здания. */
+const ROOM_ZOOM = 0.68;
 
 const desired = new Vector3();
 const lookAt = new Vector3();
@@ -32,7 +28,8 @@ export function CameraRig() {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const z = zoom.current;
-      z.target = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z.target * Math.exp(e.deltaY * 0.001)));
+      const inside = getScene().mode === "interior";
+      z.target = Math.min(inside ? 1.3 : ZOOM_MAX, Math.max(inside ? 0.38 : ZOOM_MIN, z.target * Math.exp(e.deltaY * 0.001)));
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
@@ -43,28 +40,26 @@ export function CameraRig() {
     const z = zoom.current;
     const scene = getScene();
     const inside = scene.mode === "interior";
-    const place = scene.interior ? getPlace(scene.interior.placeId) : undefined;
-    const overview = inside && !!place && usesOfficePlan(place);
-    const frontend = overview && place?.id === "office-frontend";
-    const backend = overview && !!place && usesBackendOffice(place);
-    const view = inside ? (backend ? "backend-office" : frontend ? "frontend-office" : overview ? "office" : "room") : "street";
+    const view = inside ? `${scene.interior?.placeId}:${scene.interior?.floor}` : "street";
     if (view !== z.mode) {
       z.mode = view;
-      z.target = backend || frontend ? 2.2 : overview ? OFFICE_ZOOM : inside ? ROOM_ZOOM : 1;
+      z.target = inside ? ROOM_ZOOM : 1;
+      z.value = z.target;
+      z.ready = false;
     }
     z.value += (z.target - z.value) * (1 - Math.exp(-dt * 8));
     // при приближении камера опускается: y растёт быстрее, чем z
     const k = z.value;
     desired.set(0, OFFSET.y * Math.pow(k, 1.25), OFFSET.z * Math.pow(k, 0.85));
-    if (!overview) desired.add(playerPosition);
+    desired.add(playerPosition);
+    if (inside) desired.z -= 2;
     if (!z.ready || camera.position.distanceTo(desired) > SNAP_DISTANCE) {
       camera.position.copy(desired);
       z.ready = true;
     } else {
       camera.position.lerp(desired, 1 - Math.exp(-dt * 6));
     }
-    if (overview) lookAt.set(0, 0.2, 0);
-    else lookAt.set(playerPosition.x, playerPosition.y + 1.1, playerPosition.z);
+    lookAt.set(playerPosition.x, playerPosition.y + 1.1, playerPosition.z - (inside ? 2 : 0));
     camera.lookAt(lookAt);
   });
 

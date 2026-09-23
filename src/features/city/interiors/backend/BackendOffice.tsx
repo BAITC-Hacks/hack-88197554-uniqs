@@ -7,6 +7,7 @@ import type { Place } from "@/lib/types";
 import { Part, Sign, textTexture } from "../../kit";
 import { sceneActions } from "../../sceneState";
 import { ExitDoor, Interactable, useRoomBounds } from "../Room";
+import { Colleague } from "../Colleague";
 import { BACKEND_FLOORS, DEPTH, WIDTH, backendFloorIndex, officeTitle, type BackendRoom } from "./layout";
 import { Chair, Desk, GREEN, INK, Lounge, Meeting, Plant, Solid, Table, WOOD } from "./furniture";
 
@@ -154,7 +155,8 @@ function Reception({ place }: { place: Place }) {
     <Part position={[-1, 1.08, 0.5]} size={[6.2, 0.12, 1.5]} color={WOOD} />
     <Solid x={-1} z={0.5} w={6.2} d={1.5} />
     <Sign text={officeTitle(place).toUpperCase()} color={GREEN} width={4.5} height={0.45} position={[-1, 0.45, 1.17]} />
-    <Chair id="reception" x={-1} z={-0.9} yaw={0} />
+    <Chair id="reception" x={-1} z={-0.9} yaw={0} interactive={false} />
+    <Colleague id="backend-receptionist" x={-1} z={-0.9} seated />
     <Plant x={4.8} z={1} />
     <Label text="Ожидание" x={-1} z={5.3} />
     <Lounge x={-1} z={9} />
