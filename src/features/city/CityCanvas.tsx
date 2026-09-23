@@ -9,6 +9,7 @@ import { Suspense, useEffect } from "react";
 import { PMREMGenerator, type Scene, type WebGLRenderer } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { CameraRig } from "./CameraRig";
+import { CameraControls } from "./CameraControls";
 import { EXTRAS } from "./extras";
 import { Hint3D } from "./Hint3D";
 import { Interior } from "./interiors/Interior";
@@ -103,6 +104,7 @@ export default function CityCanvas() {
       />
       <InteriorControls />
       <InteriorActivities />
+      <CameraControls />
     </>
   );
 }
