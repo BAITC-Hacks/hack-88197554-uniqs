@@ -3,10 +3,11 @@
 import { useMemo } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import { actions } from "@/lib/client-store";
+import type { Place } from "@/lib/types";
 import { Part, Sign, textTexture } from "../../kit";
 import { sceneActions } from "../../sceneState";
 import { ExitDoor, Interactable, useRoomBounds } from "../Room";
-import { BACKEND_FLOORS, BACKEND_ID, DEPTH, WIDTH, backendFloorIndex, type BackendRoom } from "./layout";
+import { BACKEND_FLOORS, DEPTH, WIDTH, backendFloorIndex, officeTitle, type BackendRoom } from "./layout";
 import { Chair, Desk, GREEN, INK, Lounge, Meeting, Plant, Solid, Table, WOOD } from "./furniture";
 
 type Point = [number, number];
@@ -145,24 +146,24 @@ function RoomContents({ room, floor }: { room: BackendRoom; floor: number }) {
   </>;
 }
 
-function Reception() {
+function Reception({ place }: { place: Place }) {
   return <>
     <Label text="Ресепшен" x={-1} z={-2.8} w={6} />
     <Part position={[-1, 0.01, 0.5]} size={[9, 0.03, 5]} color="#e0d7c5" shadow={false} />
     <Part position={[-1, 0, 0.5]} size={[6, 1.08, 1.3]} color={GREEN} />
     <Part position={[-1, 1.08, 0.5]} size={[6.2, 0.12, 1.5]} color={WOOD} />
     <Solid x={-1} z={0.5} w={6.2} d={1.5} />
-    <Sign text="BACKEND" color={GREEN} width={2.5} height={0.45} position={[-1, 0.45, 1.17]} />
+    <Sign text={officeTitle(place).toUpperCase()} color={GREEN} width={4.5} height={0.45} position={[-1, 0.45, 1.17]} />
     <Chair id="reception" x={-1} z={-0.9} yaw={0} />
     <Plant x={4.8} z={1} />
     <Label text="Ожидание" x={-1} z={5.3} />
     <Lounge x={-1} z={9} />
     <Plant x={-7} z={11.8} /><Plant x={5.2} z={11.8} />
-    <Interactable id="backend-reception" label="Карьерная траектория" position={[-1, 0, 2.5]} radius={1.9} onInteract={() => actions.openPanel("office", BACKEND_ID)} />
+    <Interactable id={`${place.id}-reception`} label="Карьерная траектория" position={[-1, 0, 2.5]} radius={1.9} onInteract={() => actions.openPanel("office", place.id)} />
   </>;
 }
 
-export function BackendOffice({ floor }: { floor: number }) {
+export function BackendOffice({ floor, place }: { floor: number; place: Place }) {
   const index = backendFloorIndex(floor), plan = BACKEND_FLOORS[index];
   useRoomBounds(WIDTH / 2, DEPTH / 2, floor === -1 ? 0 : -1.6, floor === -1 ? 13.4 : -5.2, Math.PI);
   return <group>
@@ -178,7 +179,7 @@ export function BackendOffice({ floor }: { floor: number }) {
       <Part position={[x, 1.28, z]} size={[0.07, 0.8, 0.12]} color="#eff4e9" shadow={false} />
     </group>))}
     {plan.rooms.map((room) => <group key={room.id}><Enclosure room={room} /><RoomContents room={room} floor={index} /></group>)}
-    {index === 0 && <Reception />}
+    {index === 0 && <Reception place={place} />}
     {(index === 1 || index === 2) && <>
       <Part position={[0, 0.012, 5]} size={[20, 0.02, 18.8]} color="#e0e6db" shadow={false} />
       <Label text={index === 1 ? "Рабочая зона" : "Разработка"} x={0} z={-3.3} w={8} color="#e0e6db" />

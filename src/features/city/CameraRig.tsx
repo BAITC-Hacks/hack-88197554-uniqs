@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
 import { getPlace } from "@/lib/world";
 import { usesOfficePlan } from "./interiors/officePlans";
+import { usesBackendOffice } from "./interiors/backend/layout";
 import { playerPosition } from "./playerState";
 import { getScene } from "./sceneState";
 
@@ -45,7 +46,7 @@ export function CameraRig() {
     const place = scene.interior ? getPlace(scene.interior.placeId) : undefined;
     const overview = inside && !!place && usesOfficePlan(place);
     const frontend = overview && place?.id === "office-frontend";
-    const backend = overview && place?.id === "office-backend";
+    const backend = overview && !!place && usesBackendOffice(place);
     const view = inside ? (backend ? "backend-office" : frontend ? "frontend-office" : overview ? "office" : "room") : "street";
     if (view !== z.mode) {
       z.mode = view;

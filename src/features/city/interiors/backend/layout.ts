@@ -1,6 +1,25 @@
-// Backend only. The supplied four-floor image is the source for room adjacency.
+import type { Place } from "@/lib/types";
+
+// Shared by office towers except Frontend. Based on the Backend four-floor plan.
 // Coordinates are scene units, not construction dimensions or seating capacity.
-export const BACKEND_ID = "office-backend";
+export function usesBackendOffice(place: Place): boolean {
+  return place.kind === "office" && place.id !== "office-frontend";
+}
+
+const OFFICE_NAMES: Record<string, string> = {
+  "office-backend": "Backend",
+  "office-data": "Data & Analytics",
+  "office-qa": "QA",
+  "office-product": "Product",
+  "office-hr": "HR",
+  "office-sales": "Sales",
+  "office-support": "Support",
+};
+
+export function officeTitle(place: Place): string {
+  return OFFICE_NAMES[place.id] ?? place.department ?? place.name.replace(/^Башня /, "");
+}
+
 export const WIDTH = 42;
 export const DEPTH = 30;
 export type Kind = "stairs" | "wc" | "lift" | "kitchen" | "coffee" | "meeting" | "round" | "conference" | "security" | "wardrobe" | "work" | "server" | "lounge" | "director" | "classroom";
