@@ -159,7 +159,7 @@ export function CharacterSelect({ selected, onSelect }: { selected: CharacterId;
   return (
     <Canvas
       dpr={[1, 2]}
-      camera={{ position: [0, 2.2, 7.6], fov: 30 }}
+      camera={{ position: [0, 2.3, 8.2], fov: 30 }}
       onCreated={({ camera }) => camera.lookAt(0, 0.95, 0.3)}
     >
       <hemisphereLight args={["#e0f2fe", "#1e293b", 1.2]} />
