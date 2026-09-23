@@ -11,6 +11,7 @@ import { FURNITURE, Model, RESTAURANT } from "../models";
 import { sceneActions } from "../sceneState";
 import { Chandelier, CoffeeMachine, TextBoard } from "./props";
 import { Blocker, Interactable, Room, SeatSpot } from "./Room";
+import { ActivitySpot } from "./ActivitySpot";
 
 const TABLES: { x: number; z: number; npc?: number[] }[] = [
   { x: -4.5, z: -1.5, npc: [0, 1] },
@@ -31,6 +32,7 @@ export function Cafe({ place }: { place: Place }) {
 
   return (
     <Room w={16} d={14} floor="#b98a5e" wall="#f2e6d3" trim="#8a5a3c" spawn={[0, 5.4]}>
+      <ActivitySpot id="cafe-start" x={-2.5} z={4.8} kind="venue" placeId={place.id} />
       {/* бар вдоль задней стены */}
       {[-3, -1, 1, 3].map((x, i) => (
         <Model key={i} url={i === 1 ? RESTAURANT.counterSink : i === 3 ? RESTAURANT.counter : RESTAURANT.counterPlain} position={[x, 0, -5.8]} scale={[1, 0.95, 0.9]} rotation={[0, Math.PI, 0]} />

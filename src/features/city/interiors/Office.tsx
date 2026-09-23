@@ -10,7 +10,9 @@ import type { Place } from "@/lib/types";
 import { panelForPlace } from "@/lib/world";
 import { Part, Sign } from "../kit";
 import { FURNITURE, useModel } from "../models";
-import { Blocker, Interactable, Room, SeatSpot } from "./Room";
+import { Blocker, Interactable, Room } from "./Room";
+import { ActivitySpot } from "./ActivitySpot";
+import { Colleague, OfficeSeat } from "./Colleague";
 import { officePlanFor, type OfficeZone } from "./officePlans";
 
 type Point = [number, number, number];
@@ -72,7 +74,7 @@ function Table({ x, z, w = 2.8, d = 1.4 }: { x: number; z: number; w?: number; d
 function Chair({ id, x, z, yaw = Math.PI }: { id: string; x: number; z: number; yaw?: number }) {
   return <>
     <Furniture url={FURNITURE.chairA} position={[x, 0, z]} height={0.95} yaw={yaw} />
-    <SeatSpot id={id} position={[x, 0, z]} yaw={yaw} label="Сесть за стол" />
+    <OfficeSeat id={id} x={x} z={z} yaw={yaw} />
   </>;
 }
 
@@ -138,6 +140,10 @@ export function Office({ place }: { place: Place }) {
     <Blocker x={rx} z={rz} r={1.25} />
     <Sign text={place.name.replace("Башня ", "")} color={plan.accent} width={5.5} height={0.75} position={[0, 2, -plan.d / 2 + 0.3]} />
     <Interactable id="office-reception" label="Открыть информацию" position={[rx, 0, rz + 1.5]} radius={1.6} onInteract={openPanel} />
+    {place.kind === "venue" && <>
+      <ActivitySpot id="venue-activity" x={0} z={plan.d / 2 - 1.6} kind="venue" placeId={place.id} />
+      <Colleague id={`${place.id}-host`} x={rx} z={rz - 1.4} />
+    </>}
     <Furniture url={FURNITURE.cabinet} position={[-plan.w / 2 + 1.2, 0, plan.d / 2 - 1.1]} height={1.3} />
     <Furniture url={FURNITURE.cabinetSmall} position={[plan.w / 2 - 1.2, 0, plan.d / 2 - 1.1]} height={0.9} />
     <Sign text="Мой план" color={plan.accent} width={2.8} height={1} position={[plan.w / 2 - 4.5, 1.5, plan.d / 2 - 1.2]} />

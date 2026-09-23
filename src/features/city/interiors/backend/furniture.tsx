@@ -4,7 +4,8 @@ import { Suspense, useMemo } from "react";
 import { Box3, Vector3 } from "three";
 import { Part } from "../../kit";
 import { FURNITURE, useModel } from "../../models";
-import { Blocker, SeatSpot } from "../Room";
+import { Blocker } from "../Room";
+import { OfficeSeat } from "../Colleague";
 
 export const INK = "#405650";
 export const WOOD = "#cbb48c";
@@ -31,7 +32,7 @@ export function Model(props: Parameters<typeof ModelInner>[0]) {
 
 export function Chair({ x, z, id, yaw = Math.PI, interactive = true }: { x: number; z: number; id: string; yaw?: number; interactive?: boolean }) {
   return <><Model url={FURNITURE.chairA} x={x} z={z} height={0.95} yaw={yaw} />
-    {interactive && <SeatSpot id={`backend-${id}`} position={[x, 0, z]} yaw={yaw} label="Сесть" />}
+    {interactive && <OfficeSeat id={`backend-${id}`} x={x} z={z} yaw={yaw} />}
   </>;
 }
 

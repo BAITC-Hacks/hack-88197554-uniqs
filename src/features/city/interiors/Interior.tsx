@@ -11,6 +11,7 @@ import { Academy } from "./Academy";
 import { Cafe } from "./Cafe";
 import { YurtInterior } from "./YurtInterior";
 import { FrontendOffice } from "./frontend/FrontendOffice";
+import { OfficeLife } from "./OfficeLife";
 
 export function Interior() {
   const interior = useScene((s) => s.interior);
@@ -19,8 +20,8 @@ export function Interior() {
   if (!place) return null;
   switch (place.kind) {
     case "office":
-      if (usesBackendOffice(place)) return <BackendOffice key={`${place.id}:${interior.floor}`} floor={interior.floor} place={place} />;
-      if (place.id === "office-frontend") return <FrontendOffice key={`${place.id}:${interior.floor}`} floor={interior.floor} />;
+      if (usesBackendOffice(place)) return <group key={`${place.id}:${interior.floor}`}><BackendOffice floor={interior.floor} place={place} /><OfficeLife place={place} floor={interior.floor} /></group>;
+      if (place.id === "office-frontend") return <group key={`${place.id}:${interior.floor}`}><FrontendOffice floor={interior.floor} /><OfficeLife place={place} floor={interior.floor} /></group>;
       return <Office key={`${place.id}:${interior.floor}`} place={place} />;
     case "mentor":
       return <YurtInterior key={place.id} />;
