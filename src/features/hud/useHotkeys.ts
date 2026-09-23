@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { actions, getState } from "@/lib/client-store";
 import type { PanelId } from "@/lib/types";
+import { getScene } from "@/features/city/sceneState";
 
 function isTyping(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -21,7 +22,7 @@ export function useHotkeys(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     function onKeyDown(e: KeyboardEvent) {
-      if (e.ctrlKey || e.metaKey || e.altKey || e.repeat || isTyping(e.target)) return;
+      if (getScene().controlsLocked || e.ctrlKey || e.metaKey || e.altKey || e.repeat || isTyping(e.target)) return;
       const onControl = e.target instanceof HTMLElement && !!e.target.closest("button, a, [role=option], [role=combobox]");
       switch (e.code) {
         case "Enter":
