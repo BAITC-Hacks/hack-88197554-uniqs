@@ -1,27 +1,48 @@
-// Отметка активности: запись в историю + рост навыков. Наивно: навыки сотрудника правятся в store напрямую.
-import { AS_OF, addHistory, getEmployee, getEvent, upsertEmployees } from "@/lib/store";
+import { AS_OF, addHistory, getEvent } from "@/lib/store";
 import type { ProgressDelta, ProgressRequest } from "@/lib/types";
-import { getProfile, gradeProgressOf, targetProfile } from "./profile";
+import { alreadyCompleted, availabilityError, usefulGrowth } from "./eligibility";
+import { getProfile, targetProfile } from "./profile";
 
-/** null — неизвестный сотрудник или активность. */
+export class ActivityUnavailableError extends Error {}
+
+/** null — неизвестный сотрудник или активность; недоступная активность — ошибка. */
 export function completeActivity(
   employeeId: string,
   eventId: string,
   status: ProgressRequest["status"],
 ): ProgressDelta | null {
-  const employee = getEmployee(employeeId);
   const event = getEvent(eventId);
   const profile = getProfile(employeeId);
-  if (!employee || !event || !profile) return null;
+  if (!event || !profile) return null;
+  if (status !== "completed" && status !== "declined") throw new ActivityUnavailableError("Неизвестный статус активности");
 
-  const rp = targetProfile(profile.target);
-  const before = profile.gradeProgress;
   const completed = status === "completed";
+  const before = profile.gradeProgress;
+  const unchanged: ProgressDelta = {
+    employeeId, eventId, skills: [], gradeProgress: { before, after: before },
+    gradeReady: completed && !event.mandatory && before.total > 0 && before.met === before.total,
+  };
+  // Идемпотентный ответ даже если первое завершение закрыло все разрывы.
+  if (alreadyCompleted(event, profile)) return unchanged;
+  const unavailable = availabilityError(event, profile);
+  if (unavailable) throw new ActivityUnavailableError(unavailable);
+  if (completed && !event.mandatory && !usefulGrowth(event, profile).length) {
+    throw new ActivityUnavailableError("Активность не сокращает разрыв до карьерной цели");
+  }
+  if (!completed && profile.history.some((h) => h.event_id === eventId && h.status === "declined" && h.date.slice(0, 10) === AS_OF)) {
+    return unchanged;
+  }
 
+  // Время внутри фиксированного демо-дня отличает новое завершение от
+  // снимка ревью на начало того же дня. Единственный источник роста — история.
+  const date = `${AS_OF}T12:00:00.000Z`;
+  if (completed && date <= profile.employee.last_review_date) {
+    throw new ActivityUnavailableError("Дата ревью позже даты завершения");
+  }
   addHistory({
     employee_id: employeeId,
     event_id: eventId,
-    date: AS_OF,
+    date,
     due_date: null,
     status,
     completion_pct: completed ? 100 : 0,
@@ -29,30 +50,24 @@ export function completeActivity(
     feedback_rating: null,
     assigned_by: "self",
   });
+  if (!completed) return { ...unchanged, gradeReady: false };
 
-  if (!completed) {
-    return { employeeId, eventId, skills: [], gradeProgress: { before, after: before }, gradeReady: false };
-  }
-
-  const skills = event.develops_skills.map((d) => {
-    const from = profile.effectiveSkills[d.skill_id] ?? 0;
-    return {
-      skillId: d.skill_id,
-      from,
-      to: Math.max(from, Math.min(from + d.gain, d.max_level)),
-      required: rp?.required_skills[d.skill_id] ?? 0,
-      critical: rp?.critical_skills.includes(d.skill_id) ?? false,
-    };
-  });
-  const nextSkills = { ...employee.skills, ...Object.fromEntries(skills.map((s) => [s.skillId, s.to])) };
-  upsertEmployees([{ ...employee, skills: nextSkills }]);
-
-  const after = gradeProgressOf(nextSkills, rp);
+  const afterProfile = getProfile(employeeId)!;
+  const rp = targetProfile(profile.target);
+  // Обязательная учёба учитывается в фактических навыках, но не выдаёт
+  // игровую награду/поздравление за добровольный квест.
+  const skills: ProgressDelta["skills"] = event.mandatory ? [] : Object.entries(afterProfile.effectiveSkills)
+    .filter(([skillId, to]) => to > (profile.effectiveSkills[skillId] ?? 0))
+    .map(([skillId, to]) => ({
+      skillId,
+      from: profile.effectiveSkills[skillId] ?? 0,
+      to,
+      required: rp?.required_skills[skillId] ?? 0,
+      critical: rp?.critical_skills.includes(skillId) ?? false,
+    }));
+  const after = afterProfile.gradeProgress;
   return {
-    employeeId,
-    eventId,
-    skills,
-    gradeProgress: { before, after },
-    gradeReady: after.total > 0 && after.met === after.total,
+    employeeId, eventId, skills, gradeProgress: { before, after },
+    gradeReady: !event.mandatory && after.total > 0 && after.met === after.total,
   };
 }
