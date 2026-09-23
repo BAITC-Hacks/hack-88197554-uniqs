@@ -1,0 +1,23 @@
+.glowing {
+  border: 1px solid rgb(251 191 36 / 80%);
+  box-shadow:
+    0 0 18px rgb(251 191 36 / 35%),
+    0 0 42px rgb(255 210 122 / 25%),
+    0 14px 36px rgb(0 0 0 / 16%);
+  animation: mentorGlow 2.8s ease-in-out infinite;
+}
+
+@keyframes mentorGlow {
+  50% {
+    box-shadow:
+      0 0 28px rgb(251 191 36 / 60%),
+      0 0 64px rgb(255 210 122 / 40%),
+      0 14px 36px rgb(0 0 0 / 16%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glowing {
+    animation: none;
+  }
+}

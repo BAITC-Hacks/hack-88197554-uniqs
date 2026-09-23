@@ -4,6 +4,7 @@ import { Compass, Map, ScrollText, UserRound, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { actions, useClientStore } from "@/lib/client-store";
+import { CareerExplorer } from "@/features/career/CareerExplorer";
 
 export function TopBar({ onMap, onLobby }: { onMap: () => void; onLobby: () => void }) {
   const questCount = useClientStore((s) => s.acceptedQuests.length);
@@ -22,6 +23,7 @@ export function TopBar({ onMap, onLobby }: { onMap: () => void; onLobby: () => v
         Мой план <kbd className="text-muted-foreground">J</kbd>
         {questCount > 0 && <Badge className="ml-0.5">{questCount}</Badge>}
       </Button>
+      <CareerExplorer />
       <div className="flex-1" />
       <Button size="sm" variant="ghost" onClick={onLobby}><UsersRound />Сменить сотрудника</Button>
     </header>
