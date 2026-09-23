@@ -11,6 +11,7 @@ import type { DevEvent, PanelProps, Profile } from "@/lib/types";
 import { getPlace } from "@/lib/world";
 import { alreadyCompleted, participationBlock, taskSummary, type PublicTask } from "./exercises";
 import PracticeDialog from "./PracticeDialog";
+import { PlaceKnowledge } from "@/features/knowledge/Guide";
 
 const FORMAT: Record<DevEvent["format"], string> = { online: "онлайн", offline: "офлайн", self_paced: "в своём темпе" };
 
@@ -80,6 +81,7 @@ export default function VenuePanel({ placeId }: PanelProps) {
   return (
     <div className="space-y-4 text-sm">
       <div><h2 className="text-lg font-semibold">{place.name}</h2><p className="mt-1 text-xs leading-relaxed text-muted-foreground">Выберите шаг, решите задание с подсказками и примените результат к своему прогрессу.</p></div>
+      <PlaceKnowledge placeId={placeId} />
       {place.eventType === "compliance" && <p className="rounded-lg bg-muted px-3 py-2 text-xs">Обязательное обучение — навыки не качает</p>}
       {profile && list.map(event => <EventRow key={`${employeeId}:${event.event_id}`} event={event} task={tasks[event.event_id]} profile={profile} accepted={accepted.includes(event.event_id)} finished={finished.includes(`${employeeId}:${event.event_id}`)} onStart={() => { actions.acceptQuest(event.event_id); setSelected(event); }} />)}
       {selected && tasks[selected.event_id] && <PracticeDialog key={`${employeeId}:${selected.event_id}`} event={selected} task={tasks[selected.event_id]} employeeId={employeeId} recommendation={recommendations.find(rec => rec.eventId === selected.event_id)} onClose={() => setSelected(null)} onComplete={() => setFinished(previous => [...previous, `${employeeId}:${selected.event_id}`])} />}

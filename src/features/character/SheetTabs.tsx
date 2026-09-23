@@ -7,6 +7,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { skillName } from "@/features/hud/data";
+import { ProfileKnowledge } from "@/features/knowledge/ProfileKnowledge";
 import type { DevEvent, HistoryRecord, HistoryStatus, Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -94,6 +95,8 @@ export function StatsTab({ profile }: { profile: Profile }) {
           </>
         )}
       </div>
+
+      <ProfileKnowledge profile={profile} />
 
       {skills.length > 0 && (
         <div>

@@ -13,6 +13,8 @@ import type { AgentStep, DevEvent, Profile, Recommendation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { venueForEvent } from "@/lib/world";
 import type { ChatMessage, MentorFinal } from "./chat";
+import { clearMentorDraft, mentorDraft } from "./questions";
+import { KnowledgeGuide } from "@/features/knowledge/Guide";
 
 const short = (v: unknown, n = 120) => {
   const s = JSON.stringify(v) ?? "";
@@ -176,10 +178,10 @@ export default function MentorPanel() {
 function MentorChat({ employeeId }: { employeeId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => conversations.get(employeeId) ?? [{
     id: "welcome", role: "assistant",
-    content: "Привет! Давай подберём следующий шаг в развитии. Что сейчас важнее: вырасти до следующего грейда, прокачать конкретный навык или найти короткое обучение?",
+    content: "Привет! Я помогу разобраться в твоём профиле, выбрать обучение и понять, как устроен Career Quest. Если каталог не закрывает нужный навык, обсудим рабочую практику и вопросы руководителю. С чего начнём?",
   }]);
   const messagesRef = useRef(messages);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(() => mentorDraft(employeeId));
   const [steps, setSteps] = useState<AgentStep[]>([]);
   const [streaming, setStreaming] = useState(false);
   const request = useRef<AbortController | null>(null);
@@ -189,6 +191,7 @@ function MentorChat({ employeeId }: { employeeId: string }) {
   const events = useEvents();
 
   useEffect(() => () => request.current?.abort(), []);
+  useEffect(() => { clearMentorDraft(employeeId); }, [employeeId]);
   useEffect(() => {
     const view = transcript.current;
     if (!view) return;
@@ -272,9 +275,10 @@ function MentorChat({ employeeId }: { employeeId: string }) {
       <header className="shrink-0 space-y-2 border-b pb-3">
         <h2 className="flex items-center gap-2 font-semibold"><Sparkles className="size-4 text-emerald-700" />Карьерный наставник</h2>
         <p className="text-xs text-muted-foreground">{target ? `${target.role} → ${target.grade}` : "Твой чат о развитии"}</p>
-        {mode === "offline" && <p className="text-[11px] text-amber-700">Демо-режим · OpenAI не подключён</p>}
-        {mode === "fallback" && <p className="text-[11px] text-amber-700">Ответ AI не получен · попробуй ещё раз</p>}
+        {mode === "offline" && <p className="text-[11px] text-amber-700">База знаний и подбор по правилам · без AI</p>}
+        {mode === "fallback" && <p className="text-[11px] text-amber-700">AI недоступен · ответ по базе знаний и данным профиля</p>}
         {mode === "openai" && <p className="text-[11px] text-emerald-700">Ответы OpenAI</p>}
+        <KnowledgeGuide />
       </header>
 
       <div ref={transcript} role="log" aria-label="Диалог с наставником" className="min-h-0 flex-1 space-y-5 overflow-y-auto py-4 pr-1">
@@ -307,7 +311,7 @@ function MentorChat({ employeeId }: { employeeId: string }) {
 
       <form className="shrink-0 space-y-2 border-t bg-white pt-3" onSubmit={(event) => { event.preventDefault(); void send(draft); }}>
         {messages.length === 1 && <div className="flex flex-wrap gap-1.5">
-          {["С чего начать?", "Подбери обучение онлайн", "Есть только 2 часа"].map((text) => (
+          {["С чего начать?", "Что есть в экосистеме?", "Какие пробелы в моём профиле?", "Какой рабочий проект обсудить?"].map((text) => (
             <Button key={text} type="button" size="xs" variant="outline" onClick={() => void send(text)} disabled={streaming}>{text}</Button>
           ))}
         </div>}
