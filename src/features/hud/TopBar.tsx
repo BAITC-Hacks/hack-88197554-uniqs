@@ -1,8 +1,9 @@
 "use client";
 
-import { Compass, Map, ScrollText, UserRound, UsersRound } from "lucide-react";
+import { Compass, Map, ScrollText, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HeroButton } from "@/features/character/HeroButton";
 import { actions, useClientStore } from "@/lib/client-store";
 
 export function TopBar({ onMap, onLobby }: { onMap: () => void; onLobby: () => void }) {
@@ -13,10 +14,7 @@ export function TopBar({ onMap, onLobby }: { onMap: () => void; onLobby: () => v
       <span className="font-heading mr-3 text-base font-semibold">Город карьеры</span>
       <Button variant="ghost" onClick={onMap}><Map />Карта</Button>
       <Button variant="ghost" onClick={() => actions.openPanel("mentor", "mentor")}><Compass />Наставник</Button>
-      <Button size="sm" variant="outline" title="Клавиша C" onClick={() => actions.openPanel("character")}>
-        <UserRound />
-        Профиль <kbd className="text-muted-foreground">C</kbd>
-      </Button>
+      <HeroButton />
       <Button size="sm" variant="outline" title="Клавиша J" onClick={() => actions.openPanel("quests")}>
         <ScrollText />
         Мой план <kbd className="text-muted-foreground">J</kbd>
