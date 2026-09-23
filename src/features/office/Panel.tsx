@@ -5,6 +5,7 @@ import { useClientStore } from "@/lib/client-store";
 import { GRADES, type PanelProps } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { DEPARTMENT_COLOR, getPlace, gradeFloor } from "@/lib/world";
+import { DEPARTMENT_COMPANY } from "@/features/city/companies";
 
 export default function OfficePanel({ placeId }: PanelProps) {
   const profile = useClientStore((s) => s.profile);
@@ -24,7 +25,9 @@ export default function OfficePanel({ placeId }: PanelProps) {
     <div className="space-y-4 text-sm">
       <div className="flex items-center gap-2">
         <span className="size-4 rounded" style={{ background: color }} />
-        <h2 className="text-lg font-semibold">{department}</h2>
+        <h2 className="text-lg font-semibold">
+          {DEPARTMENT_COMPANY[department]} <span className="font-normal text-muted-foreground">· {department}</span>
+        </h2>
       </div>
       <p className="text-muted-foreground">Сотрудников в отделе: {headcount}</p>
 
