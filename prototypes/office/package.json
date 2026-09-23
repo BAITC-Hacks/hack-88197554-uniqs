@@ -1,0 +1,9 @@
+{
+  "name":"career-quest-world",
+  "private":true,
+  "type":"module",
+  "engines":{"node":">=20"},
+  "scripts":{"build":"node build.mjs","start":"node server.mjs","test":"node --test test/*.test.mjs"},
+  "dependencies":{"three":"0.180.0"},
+  "devDependencies":{"esbuild":"0.25.9"}
+}
