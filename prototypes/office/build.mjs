@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import vm from 'node:vm';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const deps=path.join(root,'node_modules');
+const {build}=await import(pathToFileURL(path.join(deps,'esbuild/lib/main.js')).href);
+const source=path.resolve(root,'../../public/models/furniture');
+const assetIds=['armchair','couch_pillows','cactus_medium_A','cactus_medium_B','cactus_small_A','cabinet_medium_decorated','book_set','book_single','shelf_B_large_decorated','lamp_table','lamp_standing','chair_A','chair_B','table_low','pictureframe_large_A'];
+const assets={};
+const texture=`data:image/png;base64,${fs.readFileSync(path.join(source,'furniturebits_texture.png')).toString('base64')}`;
+for(const id of assetIds){const gltf=JSON.parse(fs.readFileSync(path.join(source,`${id}.gltf`),'utf8'));for(const b of gltf.buffers)b.uri=`data:application/octet-stream;base64,${fs.readFileSync(path.join(source,b.uri)).toString('base64')}`;for(const image of gltf.images??[])image.uri='__TEXTURE__';assets[id]=gltf;}
+const licenses={models:fs.readFileSync(path.join(root,'licenses/models.txt'),'utf8'),three:fs.readFileSync(path.join(deps,'three/LICENSE'),'utf8')};
+const data=JSON.stringify({assets,texture,licenses}).replaceAll('<','\\u003c');
+const compiled=await build({entryPoints:[path.join(root,'src/app.js')],nodePaths:[deps],bundle:true,write:false,format:'iife',minify:true,target:'es2022',legalComments:'inline'});
+const script=compiled.outputFiles[0].text.replaceAll('</script','<\\/script');
+const html=fs.readFileSync(path.join(root,'src/index.html'),'utf8').replace('/* STYLE */',()=>fs.readFileSync(path.join(root,'src/style.css'),'utf8')).replace('/* ASSETS */',()=>`window.WORLD_ASSETS=${data};`).replace('/* APP */',()=>script).replace(/[ \t]+$/gm,'');
+for(const [,s] of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(s);
+fs.writeFileSync(path.join(root,'world.html'),html);
+fs.mkdirSync(path.join(root,'licenses'),{recursive:true});for(const [name,text] of Object.entries(licenses))fs.writeFileSync(path.join(root,'licenses',`${name}.txt`),text.replace(/[ \t]+$/gm,''));
+console.log(JSON.stringify({html:path.join(root,'world.html'),assets:assetIds.length,bytes:Buffer.byteLength(html)}));
