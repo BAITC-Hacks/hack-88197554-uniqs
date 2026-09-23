@@ -1,0 +1,283 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-label="Career Quest · Город карьеры">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fc3e3"/>
+      <stop offset="0.55" stop-color="#cfe3ee"/>
+      <stop offset="1" stop-color="#f7e2cb"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9ccb7a"/>
+      <stop offset="1" stop-color="#7fae61"/>
+    </linearGradient>
+    <pattern id="mul" width="14" height="14" patternUnits="userSpaceOnUse">
+      <rect x="6" y="0" width="2" height="14" fill="#1e2f45" opacity="0.28"/>
+    </pattern>
+    <pattern id="mulw" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect x="5" y="0" width="2" height="12" fill="#ffffff" opacity="0.35"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <clipPath id="round">
+      <rect width="1280" height="400" rx="24"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <!-- небо -->
+    <rect width="1280" height="400" fill="url(#sky)"/>
+    <circle cx="1088" cy="74" r="54" fill="#ffe7b0" opacity="0.55" filter="url(#soft)"/>
+    <circle cx="1088" cy="74" r="32" fill="#ffd98a"/>
+    <!-- облака -->
+    <g fill="#ffffff" opacity="0.88">
+      <ellipse cx="140" cy="64" rx="48" ry="16"/><ellipse cx="116" cy="58" rx="26" ry="14"/><ellipse cx="164" cy="55" rx="30" ry="16"/>
+      <ellipse cx="1196" cy="60" rx="44" ry="15"/><ellipse cx="1176" cy="54" rx="24" ry="13"/><ellipse cx="1216" cy="52" rx="28" ry="15"/>
+      <ellipse cx="990" cy="150" rx="30" ry="9" opacity="0.7"/><ellipse cx="1004" cy="146" rx="18" ry="8" opacity="0.7"/>
+    </g>
+
+    <!-- дальние холмы -->
+    <path d="M0,318 C 160,292 300,304 460,312 S 760,290 940,306 S 1170,286 1280,304 L1280,336 L0,336 Z" fill="#b3d39a"/>
+
+    <!-- ── башни отделов: 4 этажа = 4 грейда ─────────────────────────── -->
+
+    <!-- 1 · Backend Development -->
+    <g>
+      <rect x="40" y="288" width="92" height="42" fill="#2c4a6b" opacity="0.92"/>
+      <rect x="40" y="288" width="92" height="42" fill="none" stroke="#3b4653" stroke-width="3"/>
+      <rect x="68" y="304" width="36" height="5" fill="#4f7cac"/>
+      <rect x="40" y="128" width="92" height="160" fill="#2c4a6b"/>
+      <rect x="40" y="128" width="92" height="160" fill="url(#mul)"/>
+      <!-- подсветка этажа Middle -->
+      <rect x="34" y="204" width="104" height="44" fill="#ffc76a" opacity="0.55" filter="url(#glow)"/>
+      <rect x="40" y="208" width="92" height="40" fill="#ffd98a" opacity="0.45"/>
+      <rect x="37" y="248" width="98" height="4" fill="#3b4653"/>
+      <rect x="37" y="208" width="98" height="4" fill="#3b4653"/>
+      <rect x="37" y="168" width="98" height="4" fill="#3b4653"/>
+      <rect x="37" y="128" width="98" height="4" fill="#3b4653"/>
+      <!-- рёбра -->
+      <rect x="58" y="128" width="4" height="160" fill="#3b4653"/>
+      <rect x="84" y="128" width="4" height="160" fill="#3b4653"/>
+      <rect x="110" y="128" width="4" height="160" fill="#3b4653"/>
+      <!-- прогресс к следующему этажу -->
+      <rect x="58" y="180" width="56" height="7" rx="3.5" fill="#1e2f45"/>
+      <rect x="58" y="180" width="16" height="7" rx="3.5" fill="#5fd39a"/>
+      <!-- крыша -->
+      <rect x="36" y="122" width="100" height="6" fill="#3b4653"/>
+      <rect x="52" y="108" width="26" height="14" fill="#9aa1ab"/>
+      <rect x="104" y="84" width="3" height="38" fill="#4a5160"/>
+      <circle cx="105.5" cy="82" r="3.2" fill="#ff5a4a"/>
+    </g>
+
+    <!-- 2 · Frontend Development (slab, цветные пояса, сад на крыше) -->
+    <g>
+      <rect x="160" y="294" width="126" height="36" fill="#7fc9c1" opacity="0.92"/>
+      <rect x="160" y="294" width="126" height="36" fill="none" stroke="#f3efe6" stroke-width="3"/>
+      <rect x="160" y="166" width="126" height="128" fill="#7fc9c1"/>
+      <rect x="160" y="166" width="126" height="128" fill="url(#mulw)"/>
+      <rect x="157" y="262" width="132" height="4" fill="#f3efe6"/>
+      <rect x="157" y="230" width="132" height="4" fill="#f3efe6"/>
+      <rect x="157" y="198" width="132" height="4" fill="#f3efe6"/>
+      <rect x="157" y="166" width="132" height="4" fill="#f3efe6"/>
+      <rect x="158" y="284" width="130" height="4" fill="#5fa8a0"/>
+      <rect x="158" y="252" width="130" height="4" fill="#5fa8a0"/>
+      <rect x="158" y="220" width="130" height="4" fill="#5fa8a0"/>
+      <rect x="158" y="188" width="130" height="4" fill="#5fa8a0"/>
+      <rect x="156" y="160" width="134" height="6" fill="#f3efe6"/>
+      <rect x="166" y="152" width="114" height="8" fill="#7fb069"/>
+      <circle cx="190" cy="150" r="7" fill="#5e9a4c"/><circle cx="240" cy="148" r="8" fill="#6fa85a"/><circle cx="270" cy="151" r="6" fill="#5e9a4c"/>
+    </g>
+
+    <!-- 3 · Data & Analytics (цилиндр, корона) -->
+    <g>
+      <rect x="318" y="168" width="84" height="162" rx="28" fill="#6f63b5"/>
+      <rect x="318" y="168" width="84" height="162" rx="28" fill="url(#mulw)"/>
+      <rect x="326" y="176" width="10" height="146" rx="5" fill="#ffffff" opacity="0.18"/>
+      <rect x="384" y="176" width="10" height="146" rx="5" fill="#1e2f45" opacity="0.16"/>
+      <rect x="318" y="296" width="84" height="4" fill="#e8e4f2"/>
+      <rect x="318" y="264" width="84" height="4" fill="#e8e4f2"/>
+      <rect x="318" y="232" width="84" height="4" fill="#e8e4f2"/>
+      <rect x="318" y="200" width="84" height="4" fill="#e8e4f2"/>
+      <rect x="314" y="164" width="92" height="6" rx="3" fill="#e8e4f2"/>
+      <g fill="#7a6fb0">
+        <rect x="324" y="150" width="6" height="14"/><rect x="335" y="144" width="6" height="20"/><rect x="346" y="150" width="6" height="14"/>
+        <rect x="357" y="144" width="6" height="20"/><rect x="368" y="150" width="6" height="14"/><rect x="379" y="144" width="6" height="20"/><rect x="390" y="150" width="6" height="14"/>
+      </g>
+      <rect x="358.5" y="130" width="3" height="20" fill="#4a5160"/>
+    </g>
+
+    <!-- 4 · Quality Assurance (шахматное стекло, техэтаж) -->
+    <g>
+      <rect x="430" y="294" width="90" height="36" fill="#c9a14a" opacity="0.92"/>
+      <rect x="430" y="294" width="90" height="36" fill="none" stroke="#efe6cf" stroke-width="3"/>
+      <rect x="430" y="264" width="90" height="30" fill="#c9a14a"/>
+      <rect x="430" y="234" width="90" height="30" fill="#9fc3dd"/>
+      <rect x="430" y="204" width="90" height="30" fill="#c9a14a"/>
+      <rect x="430" y="174" width="90" height="30" fill="#9fc3dd"/>
+      <rect x="430" y="174" width="90" height="120" fill="url(#mul)"/>
+      <rect x="427" y="264" width="96" height="4" fill="#efe6cf"/>
+      <rect x="427" y="234" width="96" height="4" fill="#efe6cf"/>
+      <rect x="427" y="204" width="96" height="4" fill="#efe6cf"/>
+      <rect x="427" y="174" width="96" height="4" fill="#efe6cf"/>
+      <rect x="426" y="168" width="98" height="6" fill="#efe6cf"/>
+      <rect x="440" y="154" width="28" height="14" fill="#9aa1ab"/>
+      <rect x="486" y="150" width="12" height="18" rx="6" fill="#6f757f"/>
+    </g>
+
+    <!-- 5 · Product Management (ступенчатая, террасы) -->
+    <g>
+      <rect x="758" y="294" width="94" height="36" fill="#d68a5a" opacity="0.92"/>
+      <rect x="758" y="294" width="94" height="36" fill="none" stroke="#f2d9c4" stroke-width="3"/>
+      <rect x="760" y="264" width="90" height="30" fill="#d68a5a"/>
+      <rect x="766" y="234" width="78" height="30" fill="#d68a5a"/>
+      <rect x="772" y="204" width="66" height="30" fill="#d68a5a"/>
+      <rect x="778" y="174" width="54" height="30" fill="#d68a5a"/>
+      <rect x="760" y="174" width="90" height="120" fill="url(#mulw)"/>
+      <rect x="757" y="264" width="96" height="4" fill="#f2d9c4"/>
+      <rect x="763" y="234" width="84" height="4" fill="#f2d9c4"/>
+      <rect x="769" y="204" width="72" height="4" fill="#f2d9c4"/>
+      <rect x="775" y="174" width="60" height="4" fill="#f2d9c4"/>
+      <rect x="758" y="260" width="8" height="4" fill="#7fb069"/><rect x="844" y="260" width="8" height="4" fill="#7fb069"/>
+      <rect x="764" y="230" width="8" height="4" fill="#7fb069"/><rect x="838" y="230" width="8" height="4" fill="#7fb069"/>
+      <rect x="770" y="200" width="8" height="4" fill="#7fb069"/><rect x="832" y="200" width="8" height="4" fill="#7fb069"/>
+      <rect x="775" y="168" width="60" height="6" fill="#f2d9c4"/>
+      <rect x="781" y="162" width="48" height="6" fill="#7fb069"/>
+      <circle cx="796" cy="160" r="6" fill="#5e9a4c"/><circle cx="816" cy="159" r="7" fill="#6fa85a"/>
+    </g>
+
+    <!-- 6 · Human Resources (балконы, сад) -->
+    <g>
+      <rect x="880" y="294" width="84" height="36" fill="#c98aa5" opacity="0.92"/>
+      <rect x="880" y="294" width="84" height="36" fill="none" stroke="#efd6dc" stroke-width="3"/>
+      <rect x="880" y="166" width="84" height="128" fill="#c98aa5"/>
+      <rect x="880" y="166" width="84" height="128" fill="url(#mulw)"/>
+      <rect x="877" y="262" width="90" height="4" fill="#efd6dc"/>
+      <rect x="877" y="230" width="90" height="4" fill="#efd6dc"/>
+      <rect x="877" y="198" width="90" height="4" fill="#efd6dc"/>
+      <rect x="877" y="166" width="90" height="4" fill="#efd6dc"/>
+      <g fill="#efd6dc">
+        <rect x="874" y="284" width="96" height="4"/><rect x="874" y="252" width="96" height="4"/><rect x="874" y="220" width="96" height="4"/><rect x="874" y="188" width="96" height="4"/>
+      </g>
+      <g fill="#cfe6ee" opacity="0.7">
+        <rect x="874" y="277" width="96" height="7"/><rect x="874" y="245" width="96" height="7"/><rect x="874" y="213" width="96" height="7"/><rect x="874" y="181" width="96" height="7"/>
+      </g>
+      <rect x="876" y="160" width="92" height="6" fill="#efd6dc"/>
+      <rect x="886" y="152" width="72" height="8" fill="#7fb069"/>
+      <circle cx="902" cy="150" r="6" fill="#5e9a4c"/><circle cx="938" cy="149" r="7" fill="#6fa85a"/>
+    </g>
+
+    <!-- 7 · Sales (slab, вертолётная площадка) -->
+    <g>
+      <rect x="992" y="294" width="120" height="36" fill="#8fb56d" opacity="0.92"/>
+      <rect x="992" y="294" width="120" height="36" fill="none" stroke="#e2e8d8" stroke-width="3"/>
+      <rect x="992" y="158" width="120" height="136" fill="#8fb56d"/>
+      <rect x="992" y="158" width="120" height="136" fill="url(#mulw)"/>
+      <rect x="989" y="260" width="126" height="4" fill="#e2e8d8"/>
+      <rect x="989" y="226" width="126" height="4" fill="#e2e8d8"/>
+      <rect x="989" y="192" width="126" height="4" fill="#e2e8d8"/>
+      <rect x="989" y="158" width="126" height="4" fill="#e2e8d8"/>
+      <rect x="988" y="152" width="128" height="6" fill="#e2e8d8"/>
+      <ellipse cx="1052" cy="150" rx="18" ry="5" fill="#3d4450"/>
+      <ellipse cx="1052" cy="150" rx="12" ry="3" fill="none" stroke="#f2c14e" stroke-width="1.5"/>
+      <rect x="1049" y="147" width="6" height="2" fill="#f2c14e"/>
+    </g>
+
+    <!-- 8 · Customer Support (пояса, спутниковая тарелка) -->
+    <g>
+      <rect x="1146" y="288" width="94" height="42" fill="#5b8fc9" opacity="0.92"/>
+      <rect x="1146" y="288" width="94" height="42" fill="none" stroke="#dfe8f3" stroke-width="3"/>
+      <rect x="1174" y="304" width="38" height="5" fill="#dfe8f3"/>
+      <rect x="1146" y="128" width="94" height="160" fill="#5b8fc9"/>
+      <rect x="1146" y="128" width="94" height="160" fill="url(#mul)"/>
+      <rect x="1143" y="248" width="100" height="4" fill="#dfe8f3"/>
+      <rect x="1143" y="208" width="100" height="4" fill="#dfe8f3"/>
+      <rect x="1143" y="168" width="100" height="4" fill="#dfe8f3"/>
+      <rect x="1143" y="128" width="100" height="4" fill="#dfe8f3"/>
+      <rect x="1144" y="276" width="98" height="4" fill="#3f6fa8"/>
+      <rect x="1144" y="236" width="98" height="4" fill="#3f6fa8"/>
+      <rect x="1144" y="196" width="98" height="4" fill="#3f6fa8"/>
+      <rect x="1144" y="156" width="98" height="4" fill="#3f6fa8"/>
+      <rect x="1142" y="122" width="102" height="6" fill="#dfe8f3"/>
+      <rect x="1156" y="108" width="26" height="14" fill="#9aa1ab"/>
+      <rect x="1210" y="104" width="3" height="18" fill="#3d4450"/>
+      <circle cx="1212" cy="102" r="13" fill="#ffffff" stroke="#cfd6de" stroke-width="2"/>
+      <circle cx="1212" cy="102" r="4" fill="#dfe8f3"/>
+      <rect x="1211" y="90" width="2" height="12" fill="#3d4450"/>
+    </g>
+
+    <!-- деревья между зданиями -->
+    <g>
+      <g transform="translate(146,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-11,-6 11,-6 0,-26" fill="#6fa85a"/><polygon points="-8,-16 8,-16 0,-32" fill="#5e9a4c"/></g>
+      <g transform="translate(302,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-12,-6 12,-6 0,-28" fill="#6fa85a"/><polygon points="-9,-18 9,-18 0,-36" fill="#5e9a4c"/></g>
+      <g transform="translate(536,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-11,-6 11,-6 0,-26" fill="#6fa85a"/><polygon points="-8,-16 8,-16 0,-32" fill="#5e9a4c"/></g>
+      <g transform="translate(744,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-12,-6 12,-6 0,-28" fill="#6fa85a"/><polygon points="-9,-18 9,-18 0,-36" fill="#5e9a4c"/></g>
+      <g transform="translate(866,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-10,-6 10,-6 0,-24" fill="#6fa85a"/><polygon points="-7,-15 7,-15 0,-30" fill="#5e9a4c"/></g>
+      <g transform="translate(1128,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-12,-6 12,-6 0,-28" fill="#6fa85a"/><polygon points="-9,-18 9,-18 0,-36" fill="#5e9a4c"/></g>
+      <g transform="translate(1258,330)"><rect x="-2" y="-8" width="4" height="8" fill="#8a5a3c"/><polygon points="-11,-6 11,-6 0,-26" fill="#6fa85a"/><polygon points="-8,-16 8,-16 0,-32" fill="#5e9a4c"/></g>
+    </g>
+
+    <!-- земля, площадь, дорога -->
+    <rect x="0" y="330" width="1280" height="70" fill="url(#grass)"/>
+    <ellipse cx="640" cy="338" rx="150" ry="18" fill="#e9dfc7"/>
+    <ellipse cx="640" cy="338" rx="110" ry="12" fill="#d6c6a3" opacity="0.55"/>
+    <rect x="0" y="362" width="1280" height="6" fill="#d8d3c5"/>
+    <rect x="0" y="368" width="1280" height="20" fill="#4b4f57"/>
+    <line x1="0" y1="378" x2="1280" y2="378" stroke="#f1e6bf" stroke-width="2" stroke-dasharray="18 14"/>
+    <rect x="0" y="388" width="1280" height="6" fill="#d8d3c5"/>
+    <!-- машины -->
+    <g>
+      <rect x="196" y="370" width="36" height="12" rx="4" fill="#4fc27a"/><rect x="204" y="366" width="18" height="7" rx="2" fill="#bfe0f0"/><circle cx="204" cy="383" r="3" fill="#2b2f36"/><circle cx="224" cy="383" r="3" fill="#2b2f36"/>
+      <rect x="812" y="370" width="36" height="12" rx="4" fill="#f2c14e"/><rect x="820" y="366" width="18" height="7" rx="2" fill="#bfe0f0"/><circle cx="820" cy="383" r="3" fill="#2b2f36"/><circle cx="840" cy="383" r="3" fill="#2b2f36"/>
+      <rect x="1040" y="370" width="36" height="12" rx="4" fill="#5b8fc9"/><rect x="1048" y="366" width="18" height="7" rx="2" fill="#bfe0f0"/><circle cx="1048" cy="383" r="3" fill="#2b2f36"/><circle cx="1068" cy="383" r="3" fill="#2b2f36"/>
+    </g>
+
+    <!-- юрта наставника с шаңыраком -->
+    <g>
+      <ellipse cx="640" cy="336" rx="70" ry="9" fill="#1e2f45" opacity="0.12"/>
+      <rect x="588" y="290" width="104" height="44" rx="4" fill="#f6f1e6" stroke="#e3d9c6" stroke-width="1.5"/>
+      <rect x="588" y="298" width="104" height="9" fill="#c8553d"/>
+      <g fill="#e8b04a">
+        <polygon points="600,298.5 604,302.5 600,306.5 596,302.5"/><polygon points="616,298.5 620,302.5 616,306.5 612,302.5"/>
+        <polygon points="664,298.5 668,302.5 664,306.5 660,302.5"/><polygon points="680,298.5 684,302.5 680,306.5 676,302.5"/>
+      </g>
+      <polygon points="582,292 698,292 640,240" fill="#efe6d3"/>
+      <polygon points="584,292 696,292 688,283 592,283" fill="#c8553d"/>
+      <line x1="640" y1="242" x2="608" y2="290" stroke="#e3d9c6" stroke-width="1.5" opacity="0.8"/>
+      <line x1="640" y1="242" x2="672" y2="290" stroke="#e3d9c6" stroke-width="1.5" opacity="0.8"/>
+      <line x1="640" y1="242" x2="640" y2="288" stroke="#e3d9c6" stroke-width="1.5" opacity="0.6"/>
+      <!-- шаңырақ -->
+      <circle cx="640" cy="240" r="11" fill="#cfe3ee" stroke="#8a5a3c" stroke-width="4"/>
+      <line x1="629" y1="240" x2="651" y2="240" stroke="#8a5a3c" stroke-width="3"/>
+      <line x1="640" y1="229" x2="640" y2="251" stroke="#8a5a3c" stroke-width="3"/>
+      <!-- дверь -->
+      <rect x="625" y="298" width="30" height="36" rx="2" fill="#e0a94a"/>
+      <rect x="629" y="302" width="22" height="32" rx="2" fill="#5b3222"/>
+      <circle cx="647" cy="320" r="1.6" fill="#e8b04a"/>
+      <rect x="618" y="334" width="44" height="8" rx="2" fill="#b8473a"/>
+      <rect x="624" y="336" width="32" height="4" rx="1" fill="#e8b04a"/>
+      <!-- скамейки на площади -->
+      <rect x="548" y="324" width="20" height="5" rx="1" fill="#8a5a3c"/><rect x="712" y="324" width="20" height="5" rx="1" fill="#8a5a3c"/>
+    </g>
+
+    <!-- персонаж идёт к юрте, пунктир пути -->
+    <g>
+      <line x1="574" y1="344" x2="622" y2="342" stroke="#ffffff" stroke-width="2" stroke-dasharray="3 4" opacity="0.9"/>
+      <g transform="translate(560,328)">
+        <rect x="-4" y="6" width="3" height="8" fill="#3d4450"/><rect x="1" y="6" width="3" height="8" fill="#3d4450"/>
+        <rect x="-5" y="-6" width="10" height="13" rx="3" fill="#4f7cac"/>
+        <circle cx="0" cy="-10" r="4.5" fill="#f1d2b6"/>
+        <path d="M-4.5,-11 a4.5,4.5 0 0 1 9,0 Z" fill="#9aa1ab"/>
+      </g>
+      <g transform="translate(566,300)">
+        <rect x="-7" y="-10" width="14" height="14" rx="4" fill="#ffd166"/>
+        <text x="0" y="1" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#1e2f45" text-anchor="middle">!</text>
+      </g>
+    </g>
+
+    <!-- заголовок -->
+    <text x="640" y="88" text-anchor="middle" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="48" font-weight="700" fill="#1e2f45" letter-spacing="-0.5">Career Quest · Город карьеры</text>
+    <text x="640" y="126" text-anchor="middle" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" fill="#3d4f66">Этажи башен — грейды. AI-наставник в юрте объясняет каждый шаг.</text>
+  </g>
+</svg>

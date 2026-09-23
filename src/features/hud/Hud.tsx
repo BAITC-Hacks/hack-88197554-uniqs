@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { actions, getState } from "@/lib/client-store";
-import { officeOf } from "@/lib/world";
-import { sceneActions, useScene } from "@/features/city/sceneState";
+import { getScene, sceneActions, useScene } from "@/features/city/sceneState";
 import { CityMap } from "./CityMap";
 import { Lobby } from "./Lobby";
 import { NextStep } from "./NextStep";
@@ -12,6 +11,8 @@ import { InteractHint } from "./InteractHint";
 import { PanelHost } from "./PanelHost";
 import { ProfileChip } from "./ProfileChip";
 import { TopBar } from "./TopBar";
+import { TourCard } from "./TourCard";
+import { tourActions } from "./tour";
 import { useHotkeys } from "./useHotkeys";
 
 /** оверлей над Canvas: сам корень прозрачен для кликов, ловят только контролы */
@@ -35,11 +36,19 @@ export function Hud() {
     const profile = getState().profile;
     if (!profile || fade) return;
     setLobby(false);
-    sceneActions.enter(officeOf(profile.employee.department).id);
+    // В город входим на улицу: там встречает наставник и ведёт тур.
+    if (getScene().mode === "interior") sceneActions.exit();
+    tourActions.start();
     if (recommend) void next.recommend();
   }
 
+  /** «Веди»: стрим наставника виден в NextStep, пока идём к башне */
+  function guide() {
+    if (!next.busy && !next.finished) void next.recommend();
+  }
+
   function changeEmployee() {
+    tourActions.reset();
     next.cancel();
     actions.closePanel();
     actions.clearMoveTarget();
@@ -58,6 +67,7 @@ export function Hud() {
         </div>
       </div>
       <InteractHint />
+      <TourCard onGuide={guide} />
       <PanelHost />
       <CityMap open={map} onOpenChange={setMap} />
       </>}
