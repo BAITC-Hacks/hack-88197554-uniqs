@@ -4,10 +4,12 @@
 // Ничего не грузит: сотрудников и профиль подтягивает HUD, сцена читает client-store.
 
 import { Canvas } from "@react-three/fiber";
+import { useEffect } from "react";
 import { CameraRig } from "./CameraRig";
 import { Decor } from "./Decor";
 import { EXTRAS } from "./extras";
 import { Ground } from "./Ground";
+import { preloadStreet } from "./models";
 import { Places } from "./Places";
 import { Player } from "./Player";
 
@@ -16,6 +18,7 @@ const SKY = "#cfe6ee";
 const SHADOW_EXTENT = 90;
 
 export default function CityCanvas() {
+  useEffect(() => preloadStreet(), []);
   return (
     <Canvas shadows="percentage" dpr={[1, 2]} camera={{ fov: 45, near: 0.5, far: 400, position: [0, 26, 30] }}>
       <color attach="background" args={[SKY]} />
