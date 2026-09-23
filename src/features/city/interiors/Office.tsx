@@ -87,6 +87,7 @@ function Desk({ id, x, z }: { id: string; x: number; z: number }) {
     <Part position={[x + 0.57, 0.93, z + 0.25]} size={[0.13, 0.07, 0.2]} color="#dee4d8" />
     <Part geo="cyl8" position={[x - 0.96, 0.91, z + 0.13]} size={[0.1, 0.22, 0.1]} color="#e9d3a2" />
     <Chair id={id} x={x} z={z + 1.18} />
+    <Interactable id={`${id}-profile`} label="Мой профиль" position={[x + 2, 0, z + 0.2]} radius={1.2} onInteract={() => actions.openPanel("character")} />
   </>;
 }
 
@@ -139,5 +140,7 @@ export function Office({ place }: { place: Place }) {
     <Interactable id="office-reception" label="Открыть информацию" position={[rx, 0, rz + 1.5]} radius={1.6} onInteract={openPanel} />
     <Furniture url={FURNITURE.cabinet} position={[-plan.w / 2 + 1.2, 0, plan.d / 2 - 1.1]} height={1.3} />
     <Furniture url={FURNITURE.cabinetSmall} position={[plan.w / 2 - 1.2, 0, plan.d / 2 - 1.1]} height={0.9} />
+    <Sign text="Мой план" color={plan.accent} width={2.8} height={1} position={[plan.w / 2 - 4.5, 1.5, plan.d / 2 - 1.2]} />
+    <Interactable id="office-plan" label="Открыть мой план" position={[plan.w / 2 - 4.5, 0, plan.d / 2 - 2]} radius={1.7} onInteract={() => actions.openPanel("quests")} />
   </Room>;
 }

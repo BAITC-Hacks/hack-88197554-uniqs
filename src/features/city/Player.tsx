@@ -4,11 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { actions, getState, useClientStore } from "@/lib/client-store";
-import type { Grade } from "@/lib/types";
 import { GROUND, INTERACT_DISTANCE, PLACES, getPlace } from "@/lib/world";
+import { GRADE_CHARACTER, useAvatar } from "./avatar";
 import { Character, type CharacterAction } from "./Character";
 import { GEO, mat } from "./kit";
-import type { CharacterId } from "./models";
 import { playerPosition, playerYaw } from "./playerState";
 import { getScene, interactables, sceneActions, walkBounds } from "./sceneState";
 
@@ -19,14 +18,6 @@ const BODY_PAD = 0.4;
 const START: [number, number] = [0, 8];
 /** места с интерьером: E у двери входит внутрь, а не открывает панель */
 const ENTERABLE = new Set(["office", "venue", "mentor", "home", "soon"]);
-
-/** внешность по грейду: класс приключенца растёт вместе с карьерой */
-const GRADE_CHARACTER: Record<Grade, CharacterId> = {
-  Junior: "rogue",
-  Middle: "knight",
-  Senior: "mage",
-  Lead: "barbarian",
-};
 
 const KEYS: Record<string, "up" | "down" | "left" | "right"> = {
   KeyW: "up",
@@ -50,6 +41,7 @@ const pressed = { up: false, down: false, left: false, right: false, run: false 
 function useMovementKeys() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      if (getScene().controlsLocked) return;
       if (e.code === "ShiftLeft" || e.code === "ShiftRight") pressed.run = true;
       const key = KEYS[e.code];
       if (!key || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
@@ -81,6 +73,7 @@ function useInteractKeys() {
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat || isTyping(e.target)) return;
       const scene = getScene();
+      if (scene.controlsLocked) return;
       const onControl = e.target instanceof HTMLElement && !!e.target.closest("button, a, [role=option], [role=combobox]");
       if (e.code === "KeyE" || ((e.code === "Enter" || e.code === "NumpadEnter") && !onControl)) {
         if (scene.fade) return;
@@ -137,7 +130,7 @@ export function Player() {
   const motion = useRef({ seq: -1, spawnSeq: -1, gestureSeq: -1, gestureUntil: 0, yaw: 0, sitting: false });
   const action = useRef<CharacterAction>("idle");
   const grade = useClientStore((s) => s.profile?.employee.grade ?? s.employees.find((e) => e.employee_id === s.employeeId)?.grade);
-  const model = GRADE_CHARACTER[grade ?? "Junior"];
+  const model = useAvatar() ?? GRADE_CHARACTER[grade ?? "Junior"];
 
   useMovementKeys();
   useInteractKeys();
@@ -172,6 +165,14 @@ export function Player() {
     }
 
     // Жест (cheer / interact): проигрывается один раз, потом idle.
+    if (scene.controlsLocked || scene.fade) {
+      pressed.up = pressed.down = pressed.left = pressed.right = pressed.run = false;
+      action.current = "idle";
+      g.position.set(pos.x, pos.y, pos.z);
+      g.rotation.y = m.yaw;
+      return;
+    }
+
     if (scene.gesture && scene.gesture.seq !== m.gestureSeq) {
       m.gestureSeq = scene.gesture.seq;
       m.gestureUntil = now + 1400;

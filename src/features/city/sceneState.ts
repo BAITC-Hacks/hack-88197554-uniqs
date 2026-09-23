@@ -39,6 +39,7 @@ export interface WalkBounds {
 
 export interface SceneState {
   mode: SceneMode;
+  controlsLocked: boolean;
   /** floor: -1 — лобби, 0…3 — этажи-грейды */
   interior: { placeId: string; floor: number } | null;
   /** id сидения, если персонаж сел */
@@ -59,6 +60,7 @@ export interface SceneState {
 
 let state: SceneState = {
   mode: "street",
+  controlsLocked: true,
   interior: null,
   seated: null,
   fade: false,
@@ -116,6 +118,9 @@ function transition(apply: () => void) {
 }
 
 export const sceneActions = {
+  lockControls(controlsLocked: boolean) {
+    if (state.controlsLocked !== controlsLocked) setScene({ controlsLocked, hint: null });
+  },
   /** войти в здание: лобби (floor -1) либо сразу зал */
   enter(placeId: string, floor = -1) {
     if (!getPlace(placeId) || state.fade) return;
