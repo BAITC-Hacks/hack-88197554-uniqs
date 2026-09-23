@@ -1,6 +1,6 @@
 import { AS_OF, getEvent, getHistory } from "@/lib/store";
 import { getProfile } from "@/features/engine/profile";
-import { completeActivity } from "@/features/engine/progress";
+import { ActivityUnavailableError, completeActivity } from "@/features/engine/progress";
 import { participationBlock, type CheckResult, type PublicTask } from "./exercises";
 import { checkCode, checkQuiz, hintLimit, publicTask, scoreFor, taskFor } from "./tasks";
 
@@ -13,7 +13,7 @@ export async function getPracticeRoute(req: Request) {
   const tasks: Record<string, PublicTask> = {};
   for (const id of ids) {
     const event = getEvent(id);
-    if (event && !event.mandatory) tasks[id] = publicTask(taskFor(event));
+    if (event && !event.mandatory) tasks[id] = publicTask(taskFor(event), event);
   }
   return Response.json({ tasks });
 }
@@ -57,9 +57,16 @@ export async function postPracticeRoute(req: Request) {
   if (!passed || !complete) return Response.json({ passed, checks, ...(score !== undefined ? { score } : {}) });
 
   // Check and completion happen together, using the submitted solution, with no client-side proof token.
-  const delta = completeActivity(employeeId, eventId, "completed");
+  let delta;
+  try {
+    delta = completeActivity(employeeId, eventId, "completed");
+  } catch (error) {
+    if (error instanceof ActivityUnavailableError) return Response.json({ error: error.message }, { status: 409 });
+    throw error;
+  }
   if (!delta) return Response.json({ error: "Не удалось засчитать активность." }, { status: 500 });
-  const record = getHistory(employeeId).filter(h => h.event_id === eventId && h.status === "completed" && h.date === AS_OF).at(-1);
+  // Engine пишет дату с временем внутри демо-дня: сравниваем только день.
+  const record = getHistory(employeeId).filter(h => h.event_id === eventId && h.status === "completed" && h.date.slice(0, 10) === AS_OF).at(-1);
   if (record) record.score = score ?? null;
   attempts.delete(key);
   return Response.json({ passed, checks, score, delta });

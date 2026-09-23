@@ -9,10 +9,12 @@ import { Suspense, useEffect } from "react";
 import { PMREMGenerator, type Scene, type WebGLRenderer } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { CameraRig } from "./CameraRig";
+import { CameraControls } from "./CameraControls";
 import { EXTRAS } from "./extras";
 import { Hint3D } from "./Hint3D";
 import { Interior } from "./interiors/Interior";
 import { InteriorControls } from "./interiors/InteriorControls";
+import { InteriorActivities } from "./interiors/InteriorActivities";
 import { preloadInteriors, preloadStreet } from "./models";
 import { Player } from "./Player";
 import { DeltaPopup } from "./QuestMarkers";
@@ -101,6 +103,8 @@ export default function CityCanvas() {
         style={{ opacity: fade ? 1 : 0 }}
       />
       <InteriorControls />
+      <InteriorActivities />
+      <CameraControls />
     </>
   );
 }

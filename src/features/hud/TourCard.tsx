@@ -15,6 +15,7 @@ import type { EventType, Place, Profile, Recommendation } from "@/lib/types";
 import { getPlace, officeOf, venueOf } from "@/lib/world";
 import { skillName, useEvents } from "./data";
 import { tourActions, useTour } from "./tour";
+import styles from "./TourCard.module.css";
 
 const STUCK_MS = 2500;
 const FADE_MS = 380;
@@ -161,7 +162,7 @@ export function TourCard({ onGuide }: { onGuide: () => void }) {
   return (
     <>
       <div className="pointer-events-none absolute inset-0 z-30 bg-slate-950 transition-opacity duration-300" style={{ opacity: black ? 1 : 0 }} />
-      {stop && <Card className="pointer-events-auto absolute bottom-16 left-1/2 w-[560px] -translate-x-1/2 gap-0 bg-white/95 p-4 shadow-xl backdrop-blur">
+      {stop && <Card className={`${styles.glowing} pointer-events-auto absolute bottom-16 left-1/2 w-[560px] -translate-x-1/2 gap-0 bg-white/95 p-4 backdrop-blur`}>
         <div className="flex gap-3">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white"><Sparkles className="size-5" /></div>
           <div className="min-w-0 flex-1">

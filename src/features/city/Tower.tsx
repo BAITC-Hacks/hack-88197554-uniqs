@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useClientStore } from "@/lib/client-store";
 import type { Department, Place } from "@/lib/types";
 import { DEPARTMENT_COLOR, TOWER_FLOOR_HEIGHT as H, TOWER_FLOORS, gradeFloor } from "@/lib/world";
+import { DEPARTMENT_COMPANY as CO } from "./companies";
 import { GEO, Instances, PALETTE, Part, Sign, glass, mat, type Item } from "./kit";
 import { CITY, Model } from "./models";
 
@@ -24,17 +25,19 @@ interface TowerStyle {
   checker?: boolean;
   roof: Roof;
   short: string;
+  /** компания-арендатор башни: главная вывеска над входом */
+  company: string;
 }
 
 export const TOWER_STYLE: Record<Department, TowerStyle> = {
-  "Backend Development": { shape: "box", wall: "#3b4653", glass: "#2c4a6b", fins: true, roof: "antenna", short: "Backend" },
-  "Frontend Development": { shape: "slab", wall: "#f3efe6", glass: "#7fc9c1", bands: true, roof: "garden", short: "Frontend" },
-  "Data & Analytics": { shape: "cyl", wall: "#e8e4f2", glass: "#6f63b5", roof: "crown", short: "Data & Analytics" },
-  "Quality Assurance": { shape: "box", wall: "#efe6cf", glass: "#c9a14a", checker: true, roof: "mech", short: "QA" },
-  "Product Management": { shape: "stepped", wall: "#f2d9c4", glass: "#d68a5a", roof: "garden", short: "Product" },
-  "Human Resources": { shape: "box", wall: "#efd6dc", glass: "#c98aa5", balconies: true, roof: "garden", short: "HR" },
-  Sales: { shape: "slab", wall: "#e2e8d8", glass: "#8fb56d", roof: "helipad", short: "Sales" },
-  "Customer Support": { shape: "box", wall: "#dfe8f3", glass: "#5b8fc9", bands: true, roof: "dish", short: "Support" },
+  "Backend Development": { shape: "box", wall: "#3b4653", glass: "#2c4a6b", fins: true, roof: "antenna", short: "Backend", company: CO["Backend Development"] },
+  "Frontend Development": { shape: "slab", wall: "#f3efe6", glass: "#7fc9c1", bands: true, roof: "garden", short: "Frontend", company: CO["Frontend Development"] },
+  "Data & Analytics": { shape: "cyl", wall: "#e8e4f2", glass: "#6f63b5", roof: "crown", short: "Data & Analytics", company: CO["Data & Analytics"] },
+  "Quality Assurance": { shape: "box", wall: "#efe6cf", glass: "#c9a14a", checker: true, roof: "mech", short: "QA", company: CO["Quality Assurance"] },
+  "Product Management": { shape: "stepped", wall: "#f2d9c4", glass: "#d68a5a", roof: "garden", short: "Product", company: CO["Product Management"] },
+  "Human Resources": { shape: "box", wall: "#efd6dc", glass: "#c98aa5", balconies: true, roof: "garden", short: "HR", company: CO["Human Resources"] },
+  Sales: { shape: "slab", wall: "#e2e8d8", glass: "#8fb56d", roof: "helipad", short: "Sales", company: CO.Sales },
+  "Customer Support": { shape: "box", wall: "#dfe8f3", glass: "#5b8fc9", bands: true, roof: "dish", short: "Support", company: CO["Customer Support"] },
 };
 
 function floorSide(style: TowerStyle, i: number) {
@@ -55,7 +58,7 @@ export function Tower({ place }: { place: Place }) {
 
   return (
     <group>
-      <Podium color={color} style={style} name={style.short} />
+      <Podium color={color} style={style} />
       {Array.from({ length: TOWER_FLOORS }, (_, i) => (
         <Floor key={i} i={i} style={style} lit={i === myFloor} />
       ))}
@@ -68,7 +71,7 @@ export function Tower({ place }: { place: Place }) {
   );
 }
 
-function Podium({ color, style, name }: { color: string; style: TowerStyle; name: string }) {
+function Podium({ color, style }: { color: string; style: TowerStyle }) {
   const w = SIDE + 2.4;
   const d = SIDE + 1.6;
   const z = d / 2;
@@ -87,12 +90,13 @@ function Podium({ color, style, name }: { color: string; style: TowerStyle; name
       <Part position={[0.72, 0.05, z + 0.12]} size={[1.25, 2.6, 0.12]} material={glass("#bfe0f0", { opacity: 0.7 })} shadow={false} />
       <Part position={[-0.25, 1.05, z + 0.24]} size={[0.06, 0.6, 0.06]} color={PALETTE.metal} shadow={false} />
       <Part position={[0.25, 1.05, z + 0.24]} size={[0.06, 0.6, 0.06]} color={PALETTE.metal} shadow={false} />
-      {/* навес на двух стойках и вывеска */}
+      {/* навес на двух стойках; вывеска компании над входом, табличка отдела на навесе */}
       <Part position={[0, 3.05, z + 0.7]} size={[5.2, 0.18, 2.6]} color={style.wall} />
       <Part position={[0, 3.23, z + 0.7]} size={[5.2, 0.06, 2.6]} color={color} shadow={false} />
       <Part position={[-2.3, 0, z + 1.75]} size={[0.14, 3.05, 0.14]} geo="cyl8" color={PALETTE.metal} />
       <Part position={[2.3, 0, z + 1.75]} size={[0.14, 3.05, 0.14]} geo="cyl8" color={PALETTE.metal} />
-      <Sign text={name} color={color} width={5.4} height={0.95} position={[0, PODIUM_H + 0.72, z - 0.35]} />
+      <Sign text={style.company} color={color} width={5.4} height={0.95} position={[0, PODIUM_H + 0.72, z - 0.35]} />
+      <Sign text={style.short} color={PALETTE.dark} width={3.4} height={0.46} position={[0, 3.17, z + 2.1]} />
       {/* клумбы у входа */}
       {[-3.3, 3.3].map((x) => (
         <group key={x} position={[x, 0, z + 1.2]}>
@@ -274,7 +278,7 @@ function RoofTop({ style, color, y }: { style: TowerStyle; color: string; y: num
           <Part position={[-0.65, 0.51, 0]} size={[0.3, 0.02, 1.6]} color="#f2c14e" shadow={false} />
           <Part position={[0.65, 0.51, 0]} size={[0.3, 0.02, 1.6]} color="#f2c14e" shadow={false} />
           <Part position={[0, 0.51, 0]} size={[1.6, 0.02, 0.3]} color="#f2c14e" shadow={false} />
-          <Sign text={style.short} color={color} width={5} height={1.3} position={[0, 2.2, -d / 2 + 0.3]} />
+          <Sign text={style.company} color={color} width={5} height={1.3} position={[0, 2.2, -d / 2 + 0.3]} />
           <Part position={[-2.2, 0.35, -d / 2 + 0.3]} size={[0.12, 1.6, 0.12]} color={PALETTE.metal} />
           <Part position={[2.2, 0.35, -d / 2 + 0.3]} size={[0.12, 1.6, 0.12]} color={PALETTE.metal} />
         </>

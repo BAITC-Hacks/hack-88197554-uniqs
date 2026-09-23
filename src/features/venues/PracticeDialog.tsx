@@ -14,6 +14,12 @@ import { languageOf, SCORE_RULE, type PracticeResult, type PublicTask } from "./
 interface Draft { code: string; answers: number[]; hints: number; opened: number[] }
 const drafts = new Map<string, Draft>();
 
+function initials(name: string): string {
+  const words = name.split(/\s+/);
+  const letters = words.length > 1 ? words.map(word => word[0]) : [name[0], name.slice(1).match(/[A-Z]/)?.[0] ?? ""];
+  return letters.join("").slice(0, 2).toUpperCase();
+}
+
 const SYNTAX = {
   python: <>Учебный Python: <code>def, for, while, if/elif/else, return</code>, числа, строки, списки и словари, включения, срезы; <code>sum, len, min, max, abs, sorted, round, range, zip, enumerate</code>; методы <code>append, get, items, keys, values</code>. Без импортов и print.</>,
   ts: <>TypeScript или JavaScript: типы можно писать, перед запуском они убираются. Без импортов, DOM и сети; на каждую проверку — до 200 мс.</>,
@@ -76,6 +82,10 @@ export default function PracticeDialog({ event, task, employeeId, recommendation
     <Dialog open onOpenChange={(open) => { if (!open && !busy) onClose(); }}>
       <DialogContent className="pointer-events-auto flex max-h-[90vh] w-[1080px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[1080px]" showCloseButton={!busy}>
         <div className="border-b px-7 py-5">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{initials(task.company.name)}</span>
+            <div className="min-w-0"><div className="text-sm font-semibold">Задание от {task.company.name}</div><p className="text-xs text-muted-foreground">{task.company.about}</p></div>
+          </div>
           <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
             <Badge variant="secondary">Практическое задание</Badge><span>{task.kind === "quiz" ? "5 минут" : "10 минут"} · {languageOf(task)}</span>
           </div>

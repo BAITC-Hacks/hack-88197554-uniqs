@@ -5,12 +5,21 @@ import { Separator } from "@/components/ui/separator";
 import { useEvents } from "@/features/hud/data";
 import { actions, useClientStore } from "@/lib/client-store";
 import { venueForEvent } from "@/lib/world";
+import { eventIndex, formatXp, xpForRecord } from "./xp";
 
 export default function QuestsPanel() {
   const accepted = useClientStore((s) => s.acceptedQuests);
   const recommendations = useClientStore((s) => s.recommendations);
   const events = useEvents();
   const open = recommendations.filter((r) => !accepted.includes(r.eventId));
+  const profile = useClientStore((s) => s.profile);
+  const byId = eventIndex(events);
+  // выполненные добровольные шаги с опытом, свежие сверху
+  const done = (profile?.history ?? [])
+    .map((h) => ({ h, xp: xpForRecord(byId.get(h.event_id), h).total }))
+    .filter((d) => d.xp > 0)
+    .sort((a, b) => b.h.date.localeCompare(a.h.date) || b.h.record_id.localeCompare(a.h.record_id))
+    .slice(0, 5);
 
   return (
     <div className="space-y-4 text-sm">
@@ -53,6 +62,24 @@ export default function QuestsPanel() {
                 <Button size="sm" variant="outline" onClick={() => actions.acceptQuest(r.eventId)}>
                   Взять
                 </Button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {done.length > 0 && (
+        <>
+          <Separator />
+          <div className="space-y-2">
+            <div className="font-medium">Выполнено</div>
+            {done.map(({ h, xp }) => (
+              <div key={h.record_id} className="flex items-center gap-2 rounded-lg bg-emerald-50 p-2">
+                <div className="flex-1">
+                  <div>{byId.get(h.event_id)?.title ?? h.event_id}</div>
+                  <div className="text-xs text-muted-foreground tabular-nums">{h.date}</div>
+                </div>
+                <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-amber-800">+{formatXp(xp)} XP</span>
               </div>
             ))}
           </div>

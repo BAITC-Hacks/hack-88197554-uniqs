@@ -2,8 +2,12 @@
 // Банк заданий с эталонами живёт на сервере (./tasks) и сюда не импортируется.
 import type { DevEvent, Profile, ProgressDelta } from "@/lib/types";
 
+/** Компания города, от которой приходит задание: башня отдела по теме активности. */
+export interface Company { name: string; about: string }
+
 export interface PublicCodeTask {
   kind: "python" | "ts";
+  company: Company;
   title: string;
   brief: string;
   takeaway: string;
@@ -21,6 +25,7 @@ export interface PublicQuestion {
 }
 export interface PublicQuizTask {
   kind: "quiz";
+  company: Company;
   title: string;
   brief: string;
   takeaway: string;
@@ -60,9 +65,12 @@ export function taskSummary(task: PublicTask): string {
   return `Написать код на ${languageOf(task)} и пройти ${n} ${plural(n, ["проверку", "проверки", "проверок"])}`;
 }
 
+const TODAY = "2026-10-01";
+
+/** Как engine/eligibility: регулярный клуб EV_036 можно пройти снова в другой день. Даты истории бывают с временем. */
 export function alreadyCompleted(event: DevEvent, profile: Profile): boolean {
   return profile.history.some(record => record.event_id === event.event_id && record.status === "completed"
-    && (event.event_id !== "EV_036" || record.date === "2026-10-01"));
+    && (event.event_id !== "EV_036" || record.date.slice(0, 10) === TODAY));
 }
 
 export function participationBlock(event: DevEvent, profile: Profile): string | null {
@@ -71,6 +79,7 @@ export function participationBlock(event: DevEvent, profile: Profile): string | 
   if (!event.target_roles.includes(profile.employee.role) || !event.target_grades.includes(profile.employee.grade)) return "Активность рассчитана на другую роль или грейд.";
   const missing = Object.entries(event.prerequisites).filter(([id, level]) => (profile.effectiveSkills[id] ?? 0) < level);
   if (missing.length) return "Сначала закройте предварительные требования активности.";
+  if (event.format !== "self_paced" && !event.upcoming_sessions.some(date => date.slice(0, 10) >= TODAY)) return "Нет будущей сессии: активность пока нельзя засчитать.";
   const useful = event.develops_skills.some(skill => {
     const gap = profile.gaps.find(gap => gap.skillId === skill.skill_id);
     return gap && gap.current < Math.min(gap.required, skill.max_level) && skill.gain > 0;
