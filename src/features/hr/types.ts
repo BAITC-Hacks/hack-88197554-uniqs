@@ -15,12 +15,16 @@ export interface Account {
   id: string; login: string; name: string; role: HrRole; employeeId: string | null;
   departments: Department[]; permissions: Permissions; enabled: boolean;
 }
-export interface PlanStep { eventId: string; dueDate: string; }
+export interface PlanStep {
+  eventId: string; dueDate: string;
+  kind?: "task"; title?: string; description?: string; hours?: number; skillId?: string; doneAt?: string;
+}
 export interface LearningPlan {
   id: string; employeeId: string; title: string; goal: string; note: string;
   steps: PlanStep[]; state: "draft" | "published" | "archived";
   response: "pending" | "accepted" | "declined"; createdBy: string; createdAt: string; updatedAt: string;
   baselineHistoryIds: string[];
+  templateId?: string;
 }
 export interface PlanView extends LearningPlan {
   employeeName: string; department: Department; completedEventIds: string[]; totalHours: number;

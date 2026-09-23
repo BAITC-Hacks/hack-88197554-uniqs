@@ -1,0 +1,18 @@
+"use client";
+
+import { Check, Plus, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { dateLabel, fieldClass } from "./client";
+import type { HrWorkspace, PlanStep, PlanView } from "./types";
+
+export function PlanSteps({ plan, data, busy, onComplete }: { plan: PlanView; data: HrWorkspace; busy: boolean; onComplete: (id: string) => void }) {
+  return <ol className="my-5 space-y-3">{plan.steps.map((step, i) => {
+    const done = plan.completedEventIds.includes(step.eventId);
+    return <li key={step.eventId} className="flex gap-3"><span className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs ${done ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-500"}`}>{done ? <Check className="size-3" /> : i + 1}</span><div className="min-w-0 flex-1"><p className="text-sm font-medium">{step.kind === "task" ? step.title : data.events.find((e) => e.event_id === step.eventId)?.title ?? step.eventId}</p>{step.description && <p className="mt-1 text-xs leading-relaxed text-slate-500">{step.description}</p>}<p className="mt-1 text-xs text-slate-500">{done ? "Завершено" : `До ${dateLabel(step.dueDate)}`}{step.kind === "task" ? ` · Практический шаг · ${step.hours} ч` : ""}</p>{step.kind === "task" && !done && plan.response === "accepted" && data.account.role === "employee" && <Button className="mt-2" size="sm" variant="outline" disabled={busy} onClick={() => onComplete(step.eventId)}>Отметить выполнение</Button>}</div></li>;
+  })}</ol>;
+}
+
+export function ManualStepsEditor({ steps, onChange, asOf }: { steps: PlanStep[]; onChange: (steps: PlanStep[]) => void; asOf: string }) {
+  function update(id: string, patch: Partial<PlanStep>) { onChange(steps.map((s) => s.eventId === id ? { ...s, ...patch } : s)); }
+  return <section className="space-y-3"><div className="flex items-center justify-between"><h3 className="font-semibold">Практика и встречи</h3><Button type="button" variant="outline" onClick={() => { const date = new Date(`${asOf}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + 14); onChange([...steps, { eventId: `task:${crypto.randomUUID()}`, kind: "task", title: "Практическое задание", description: "", hours: 1, dueDate: date.toISOString().slice(0, 10) }]); }}><Plus />Добавить шаг</Button></div>{steps.filter((s) => s.kind === "task").map((step) => <div key={step.eventId} className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"><div className="flex items-center gap-2"><input aria-label="Название практического шага" required maxLength={200} className={fieldClass} value={step.title ?? ""} onChange={(e) => update(step.eventId, { title: e.target.value })} /><Button type="button" variant="ghost" size="icon" aria-label={`Удалить шаг ${step.title}`} onClick={() => onChange(steps.filter((s) => s.eventId !== step.eventId))}><X /></Button></div><textarea aria-label="Описание практического шага" required maxLength={1500} className={`${fieldClass} h-24 py-2`} value={step.description ?? ""} onChange={(e) => update(step.eventId, { description: e.target.value })} /><div className="flex gap-3"><label className="flex-1 text-xs text-slate-500">Завершить до<input type="date" required min={asOf} value={step.dueDate} onChange={(e) => update(step.eventId, { dueDate: e.target.value })} className={`${fieldClass} mt-1`} /></label><label className="w-28 text-xs text-slate-500">Часов<input type="number" min={0.25} max={80} step={0.25} required value={step.hours ?? 1} onChange={(e) => update(step.eventId, { hours: Number(e.target.value) })} className={`${fieldClass} mt-1`} /></label></div></div>)}<p className="text-xs text-slate-400">Выполнение практики фиксируется в плане и не начисляет навыки автоматически.</p></section>;
+}
