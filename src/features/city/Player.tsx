@@ -50,6 +50,7 @@ const pressed = { up: false, down: false, left: false, right: false, run: false 
 function useMovementKeys() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      if (getScene().controlsLocked) return;
       if (e.code === "ShiftLeft" || e.code === "ShiftRight") pressed.run = true;
       const key = KEYS[e.code];
       if (!key || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
@@ -81,6 +82,7 @@ function useInteractKeys() {
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat || isTyping(e.target)) return;
       const scene = getScene();
+      if (scene.controlsLocked) return;
       const onControl = e.target instanceof HTMLElement && !!e.target.closest("button, a, [role=option], [role=combobox]");
       if (e.code === "KeyE" || ((e.code === "Enter" || e.code === "NumpadEnter") && !onControl)) {
         if (scene.fade) return;
@@ -172,6 +174,14 @@ export function Player() {
     }
 
     // Жест (cheer / interact): проигрывается один раз, потом idle.
+    if (scene.controlsLocked || scene.fade) {
+      pressed.up = pressed.down = pressed.left = pressed.right = pressed.run = false;
+      action.current = "idle";
+      g.position.set(pos.x, pos.y, pos.z);
+      g.rotation.y = m.yaw;
+      return;
+    }
+
     if (scene.gesture && scene.gesture.seq !== m.gestureSeq) {
       m.gestureSeq = scene.gesture.seq;
       m.gestureUntil = now + 1400;

@@ -17,8 +17,9 @@ function togglePanel(panel: PanelId) {
 
 /** E/Enter — войти, Esc — закрыть, C — персонаж, J — квесты. WASD обрабатывает город.
  *  По e.code, чтобы работало и в русской раскладке. */
-export function useHotkeys() {
+export function useHotkeys(enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
     function onKeyDown(e: KeyboardEvent) {
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat || isTyping(e.target)) return;
       const onControl = e.target instanceof HTMLElement && !!e.target.closest("button, a, [role=option], [role=combobox]");
@@ -45,5 +46,5 @@ export function useHotkeys() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [enabled]);
 }

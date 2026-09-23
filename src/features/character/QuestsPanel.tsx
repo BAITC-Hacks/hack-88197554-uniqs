@@ -14,7 +14,7 @@ export default function QuestsPanel() {
 
   return (
     <div className="space-y-4 text-sm">
-      <h2 className="text-lg font-semibold">Журнал квестов</h2>
+      <h2 className="text-lg font-semibold">Мой план</h2>
 
       {accepted.length === 0 && open.length === 0 && (
         <p className="text-muted-foreground">Поговорите с наставником в юрте</p>
@@ -22,7 +22,7 @@ export default function QuestsPanel() {
 
       {accepted.length > 0 && (
         <div className="space-y-2">
-          <div className="font-medium">Взятые</div>
+          <div className="font-medium">Выбранные шаги</div>
           {accepted.map((id) => {
             const event = events.find((e) => e.event_id === id);
             const title = recommendations.find((r) => r.eventId === id)?.title ?? event?.title ?? id;

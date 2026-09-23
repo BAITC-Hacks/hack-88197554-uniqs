@@ -9,9 +9,10 @@ import { officePlanFor, usesOfficePlan } from "./officePlans";
 export function InteriorControls() {
   const interior = useScene((s) => s.interior);
   const fade = useScene((s) => s.fade);
+  const locked = useScene((s) => s.controlsLocked);
   const nearId = useClientStore((s) => s.nearPlaceId);
   const place = getPlace(interior?.placeId ?? nearId ?? "");
-  if (!place) return null;
+  if (!place || locked) return null;
   if (!interior) return (
     <div className="pointer-events-auto absolute bottom-16 left-1/2 z-10 -translate-x-1/2">
       <Button disabled={fade} onClick={() => sceneActions.enter(place.id)}>Войти · {place.name}</Button>

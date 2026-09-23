@@ -6,7 +6,7 @@ import type { Employee } from "@/lib/types";
 
 const label = (e: Employee) => `${e.full_name} · ${e.role} · ${e.grade}`;
 
-export function EmployeeSelect() {
+export function EmployeeSelect({ expanded = false }: { expanded?: boolean }) {
   const employees = useClientStore((s) => s.employees);
   const employeeId = useClientStore((s) => s.employeeId);
 
@@ -17,7 +17,7 @@ export function EmployeeSelect() {
         if (id) actions.selectEmployee(id);
       }}
     >
-      <SelectTrigger size="sm" className="w-60 bg-background">
+      <SelectTrigger size={expanded ? "default" : "sm"} className={expanded ? "w-full bg-background" : "w-60 bg-background"} aria-label="Выбрать сотрудника">
         <SelectValue placeholder="Сотрудник">
           {(id: string) => {
             const e = employees.find((x) => x.employee_id === id);
