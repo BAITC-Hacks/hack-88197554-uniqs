@@ -1,7 +1,5 @@
-// GET /api/hr → HrSummary. Пока пустые массивы нужной формы; содержимое делает фича hr.
-import type { HrSummary } from "@/lib/types";
+import { getHrReport } from "./summary";
 
 export async function getHrRoute() {
-  const summary: HrSummary = { weakSkills: [], noStep: [], participation: [] };
-  return Response.json(summary);
+  return Response.json(getHrReport().summary, { headers: { "Cache-Control": "no-store" } });
 }
