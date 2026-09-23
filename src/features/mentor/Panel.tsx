@@ -224,7 +224,8 @@ function MentorChat({ employeeId }: { employeeId: string }) {
         body: JSON.stringify({
           employeeId,
           excludedEventIds: [...(deferred.get(employeeId) ?? [])],
-          messages: conversation.filter((message) => message.id !== "welcome").slice(-12).map((message) => ({
+          messages: conversation.filter((message) => message.id !== "welcome"
+            && (message.role === "user" || message.mode === "openai")).slice(-12).map((message) => ({
             role: message.role,
             content: (message.content + (message.recommendations?.length
               ? `\nПредложенные карточки: ${message.recommendations.map((rec, index) => `${index + 1}. ${rec.title} (${rec.eventId})`).join("; ")}` : "")).slice(0, 4000),
@@ -272,6 +273,8 @@ function MentorChat({ employeeId }: { employeeId: string }) {
         <h2 className="flex items-center gap-2 font-semibold"><Sparkles className="size-4 text-emerald-700" />Карьерный наставник</h2>
         <p className="text-xs text-muted-foreground">{target ? `${target.role} → ${target.grade}` : "Твой чат о развитии"}</p>
         {mode === "offline" && <p className="text-[11px] text-amber-700">Демо-режим · OpenAI не подключён</p>}
+        {mode === "fallback" && <p className="text-[11px] text-amber-700">Ответ AI не получен · попробуй ещё раз</p>}
+        {mode === "openai" && <p className="text-[11px] text-emerald-700">Ответы OpenAI</p>}
       </header>
 
       <div ref={transcript} role="log" aria-label="Диалог с наставником" className="min-h-0 flex-1 space-y-5 overflow-y-auto py-4 pr-1">

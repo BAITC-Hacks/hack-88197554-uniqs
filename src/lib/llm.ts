@@ -9,6 +9,7 @@ export interface LlmMessage {
 export interface LlmRequest {
   system: string;
   messages: LlmMessage[];
+  responseSchema?: Record<string, unknown>;
 }
 
 type Provider = (req: LlmRequest) => Promise<string>;
@@ -36,6 +37,9 @@ const openai: Provider = async (req) => {
         model: process.env.OPENAI_MODEL?.trim() || "gpt-6-sol",
         instructions: req.system,
         input: req.messages,
+        ...(req.responseSchema ? {
+          text: { format: { type: "json_schema", name: "career_mentor_reply", strict: true, schema: req.responseSchema } },
+        } : {}),
         reasoning: { effort: "none" },
         max_output_tokens: 1800,
         store: false,

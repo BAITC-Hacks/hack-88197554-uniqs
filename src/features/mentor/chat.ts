@@ -5,7 +5,7 @@ export type MentorFinal = {
   type: "final";
   recommendations: Recommendation[];
   message: string;
-  mode: "openai" | "offline";
+  mode: "openai" | "offline" | "fallback";
 };
 
 export type MentorStep = Exclude<AgentStep, { type: "final" }> | MentorFinal;
