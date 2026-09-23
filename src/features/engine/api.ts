@@ -2,7 +2,7 @@
 import { getEmployee, getEmployees, getEvent, getEvents } from "@/lib/store";
 import type { ProgressRequest } from "@/lib/types";
 import { getProfile } from "./profile";
-import { completeActivity } from "./progress";
+import { ActivityUnavailableError, completeActivity } from "./progress";
 import { recommend } from "./recommend";
 
 const notFound = (error: string) => Response.json({ error }, { status: 404 });
@@ -44,5 +44,12 @@ export async function postProgressRoute(req: Request) {
   }
   if (!getEmployee(body.employeeId)) return notFound(`Сотрудник ${body.employeeId} не найден`);
   if (!getEvent(body.eventId)) return notFound(`Активность ${body.eventId} не найдена`);
-  return Response.json(completeActivity(body.employeeId, body.eventId, body.status));
+  try {
+    return Response.json(completeActivity(body.employeeId, body.eventId, body.status));
+  } catch (error) {
+    if (error instanceof ActivityUnavailableError) {
+      return Response.json({ error: error.message }, { status: 409 });
+    }
+    throw error;
+  }
 }

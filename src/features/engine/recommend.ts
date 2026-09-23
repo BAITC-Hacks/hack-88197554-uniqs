@@ -1,69 +1,76 @@
-// Наивные рекомендации: фильтры из CLAUDE.md + score = закрываемый разрыв. Настоящую логику делает фича engine.
-import { AS_OF, getEvents, getSkill } from "@/lib/store";
+import { getEvent, getEvents, getSkill } from "@/lib/store";
 import type { DevEvent, Factor, Profile, Recommendation } from "@/lib/types";
+import { alreadyCompleted, availabilityError, nextSessionOf, usefulGrowth } from "./eligibility";
 import { getProfile } from "./profile";
 
-const REPEATABLE = new Set(["EV_036"]);
+export { nextSessionOf } from "./eligibility";
 
-export function nextSessionOf(event: DevEvent): string | null {
-  return [...event.upcoming_sessions].sort().find((d) => d >= AS_OF) ?? null;
+function historyFactors(event: DevEvent, profile: Profile): Factor[] {
+  const factors: Factor[] = [];
+  const voluntary = profile.history.flatMap((record) => {
+    const previous = getEvent(record.event_id);
+    return previous && !previous.mandatory ? [{ record, previous }] : [];
+  });
+  for (const dimension of ["type", "format"] as const) {
+    const similar = voluntary.filter(({ previous }) => previous[dimension] === event[dimension]);
+    const completed = similar.filter(({ record }) => record.status === "completed").length;
+    const negative = similar.filter(({ record }) => ["no_show", "dropped", "declined"].includes(record.status));
+    if (!completed && !negative.length) continue;
+    const label = dimension === "type" ? `типу ${event.type}` : `формату ${event.format}`;
+    factors.push({
+      kind: dimension === "type" ? "history" : "format",
+      text: `По ${label}: завершено ${completed}, пропусков/отказов/брошенных ${negative.length}`,
+      // Сигнал ограничен: история влияет на выбор, но не заглушает пользу навыков.
+      weight: Math.max(-3, Math.min(1.5, completed * 0.5 - negative.length)),
+    });
+  }
+  if (!factors.length) factors.push({
+    kind: "history",
+    text: "Нет завершений или отказов по похожему типу и формату; предпочтение неизвестно",
+    weight: 0,
+  });
+  return factors;
 }
 
-const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
-
 function score(event: DevEvent, profile: Profile): Recommendation | null {
-  const { employee, effectiveSkills, gaps, target } = profile;
-  if (event.mandatory) return null;
-  if (!event.target_roles.includes(employee.role) || !event.target_grades.includes(employee.grade)) return null;
-  const done = profile.history.some((h) => h.event_id === event.event_id && h.status === "completed");
-  if (done && !REPEATABLE.has(event.event_id)) return null;
-  const prereqs = Object.entries(event.prerequisites);
-  if (prereqs.some(([s, lvl]) => (effectiveSkills[s] ?? 0) < lvl)) return null;
+  if (event.mandatory || alreadyCompleted(event, profile) || availabilityError(event, profile)) return null;
+  const closes = usefulGrowth(event, profile);
+  if (!closes.length || !profile.target) return null;
 
-  const closes = event.develops_skills
-    .map((d) => {
-      const gap = gaps.find((g) => g.skillId === d.skill_id);
-      if (!gap) return null;
-      const to = Math.min(gap.current + d.gain, d.max_level, gap.required);
-      const closed = to - gap.current;
-      return closed > 0 ? { gap, to, weight: closed * (gap.critical ? 2 : 1) } : null;
-    })
-    .filter((c) => c !== null)
-    .sort((a, b) => b.weight - a.weight);
-  if (!closes.length) return null;
-
-  const best = closes[0];
-  const skillName = getSkill(best.gap.skillId)?.name ?? best.gap.skillId;
-  const grade = target?.grade ?? employee.grade;
+  const factors: Factor[] = closes.map(({ gap, to, closed }) => ({
+    kind: gap.critical ? "critical_gap" : "gap",
+    text: `${getSkill(gap.skillId)?.name ?? gap.skillId} ${gap.current} → ${to}; требуется ${gap.required}${gap.critical ? ", критичный навык" : ""}`,
+    // Учитываем и полезный gain, и исходный размер разрыва до цели.
+    weight: closed * (gap.critical ? 4 : 2) + (gap.required - gap.current) * (gap.critical ? 1 : 0.5),
+  }));
   const nextSession = nextSessionOf(event);
-  const factors: Factor[] = [
+  factors.push(
     {
-      kind: best.gap.critical ? "critical_gap" : "gap",
-      text: `${skillName} ${best.gap.current} → ${best.to}, ${best.gap.critical ? "критичен" : "нужен"} для ${grade}`,
-      weight: best.weight,
+      kind: "goal",
+      text: `${profile.target.source === "goal" ? "Карьерная цель" : "Следующий грейд"}: ${profile.target.role}, ${profile.target.grade}`,
+      weight: 0,
     },
+    ...historyFactors(event, profile),
     {
       kind: "session",
-      text: nextSession
-        ? `Ближайшая сессия ${nextSession}`
-        : event.format === "self_paced"
-          ? "В своём темпе"
-          : "Дата сессии уточняется",
+      text: nextSession ? `Ближайшая сессия ${nextSession}` : "Самостоятельное обучение в своём темпе",
       weight: 0,
     },
     {
       kind: "prereq",
-      text: prereqs.length ? "Требования к участию выполнены" : "Без предварительных требований",
+      text: Object.keys(event.prerequisites).length
+        ? `Требования выполнены: ${Object.entries(event.prerequisites).map(([skill, level]) => `${getSkill(skill)?.name ?? skill} ${profile.effectiveSkills[skill] ?? 0} ≥ ${level}`).join(", ")}`
+        : "Без предварительных требований",
       weight: 0,
     },
-  ];
+  );
   return {
     eventId: event.event_id,
     title: event.title,
-    score: closes.reduce((sum, c) => sum + c.weight, 0),
+    score: factors.reduce((sum, factor) => sum + factor.weight, 0),
     factors,
     nextSession,
-    explanation: factors.map((f, i) => (i === 0 ? f.text : lowerFirst(f.text))).join("; ") + ".",
+    explanation: factors.map((factor) => factor.text).join("; ") + ".",
   };
 }
 
@@ -71,8 +78,8 @@ export function recommend(id: string): Recommendation[] {
   const profile = getProfile(id);
   if (!profile) return [];
   return getEvents()
-    .map((e) => score(e, profile))
-    .filter((r) => r !== null)
+    .map((event) => score(event, profile))
+    .filter((recommendation) => recommendation !== null)
     .sort((a, b) => b.score - a.score || a.eventId.localeCompare(b.eventId))
     .slice(0, 3);
 }
