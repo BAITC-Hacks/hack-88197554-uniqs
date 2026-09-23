@@ -14,6 +14,7 @@ import type { CareerGoal, GoalOptions } from "@/features/engine/goal";
 import { actions, getState, useClientStore } from "@/lib/client-store";
 import { GRADES, type Recommendation } from "@/lib/types";
 import { skillName } from "./data";
+import { CareerExplorer } from "@/features/career/CareerExplorer";
 
 /** «вы станете Магом» */
 const AS_HERO: Record<CharacterId, string> = {
@@ -131,6 +132,7 @@ export function GoalStep() {
       <div>
         <h2 className="text-lg font-semibold">Кем хочу стать</h2>
         <p className="mt-1 text-sm text-muted-foreground">{employee.full_name} · {employee.role} · {employee.grade}</p>
+        <div className="mt-3"><CareerExplorer /></div>
       </div>
       <div className="space-y-2">
         <Option active={mode === "grow"} disabled={pending || !growGoal} title="Расти в своей роли" hint={growGoal ? `${employee.role} · ${growGoal.target_grade}` : "Вы уже на старшем грейде роли"} onClick={() => mode !== "grow" && void apply(null)} />
