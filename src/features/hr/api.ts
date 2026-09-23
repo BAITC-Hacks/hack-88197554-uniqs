@@ -28,6 +28,7 @@ export const getHrRoute = route((request) => {
   const departments = [...new Set(scope.map((e) => e.department))].sort();
   if (department && !departments.some((d) => d === department)) throw new HrError("Отдел недоступен", 403);
   const query = (params.get("q") ?? "").trim().toLowerCase();
+  if (query && !account.permissions.profiles && account.role !== "employee") throw new HrError("Для поиска сотрудников нужен доступ к карточкам", 403);
   const employees = scope.filter((e) => (!department || e.department === department) && (!grade || e.grade === grade) && (!query || `${e.full_name} ${e.employee_id} ${e.role}`.toLowerCase().includes(query))).map(employeeView);
   const employeeIds = new Set(employees.map((e) => e.id));
   const plans = visiblePlans(account).filter((p) => employeeIds.has(p.employeeId));
