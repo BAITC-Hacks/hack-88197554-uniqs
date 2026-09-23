@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { GRADES } from "@/lib/types";
 import { AccessPanel } from "./AccessPanel";
 import { ApiError, fieldClass, hrRequest } from "./client";
+import { HR_DEMO_ACCESS } from "./demo-access";
 import { PlanEditor, PlansPanel } from "./PlansPanel";
 import { ROLE_LABELS, type Account, type EmployeeView, type HrWorkspace, type PlanView } from "./types";
 
@@ -29,11 +30,17 @@ function Login({ onLogin, initialError }: { onLogin: (account: Account) => void;
     <section className="flex flex-col justify-between bg-emerald-950 p-16 text-white"><Link href="/" className="flex items-center gap-2 text-sm text-emerald-100"><ArrowLeft className="size-4" />Вернуться в город</Link><div><div className="mb-6 flex size-16 items-center justify-center rounded-2xl bg-emerald-800"><Layers3 className="size-8 text-emerald-200" /></div><p className="text-xs font-medium uppercase tracking-[.24em] text-emerald-300">Career Quest · Halyk</p><h1 className="mt-5 text-5xl font-semibold leading-tight">Развитие команды<br />начинается с понимания.</h1><p className="mt-6 max-w-lg text-lg leading-relaxed text-emerald-100/70">Компетенции, карьерные цели и обучение в одном рабочем пространстве.</p><div className="mt-10 flex gap-8 text-sm text-emerald-100"><span className="flex items-center gap-2"><ChartNoAxesCombined className="size-4" />Обзор навыков</span><span className="flex items-center gap-2"><BookOpen className="size-4" />Планы обучения</span></div></div><p className="text-sm text-emerald-100/50">Поддержка развития без публичного рейтинга сотрудников.</p></section>
     <section className="flex items-center justify-center p-16"><form className="w-full max-w-sm space-y-5" onSubmit={async (event) => { event.preventDefault(); setBusy(true); setError(""); try { const result = await hrRequest<{ account: Account }>("/session", { login, password }); onLogin(result.account); } catch (e) { setError(e instanceof Error ? e.message : "Ошибка входа"); } finally { setBusy(false); } }}>
       <div className="mb-7"><LockKeyhole className="mb-4 size-7 text-emerald-700" /><h2 className="text-2xl font-semibold">Войти в HR-панель</h2><p className="mt-2 text-sm leading-relaxed text-slate-500">Используйте аккаунт, который создал администратор. Доступные отделы и действия зависят от ваших прав.</p></div>
+      <aside aria-label="Доступ для демо" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
+        <p className="mb-2 font-semibold">Доступ для демо</p>
+        <div className="flex justify-between gap-4"><span>Логин</span><code className="select-all font-semibold">{HR_DEMO_ACCESS.login}</code></div>
+        <div className="mt-1 flex justify-between gap-4"><span>Пароль</span><code className="select-all font-semibold">{HR_DEMO_ACCESS.password}</code></div>
+        <p className="mt-2 text-xs text-emerald-800">Логин — латиницей, пароль — русскими буквами.</p>
+      </aside>
       <label className="block space-y-2 text-sm font-medium"><span>Логин</span><input autoFocus required autoComplete="username" value={login} onChange={(e) => setLogin(e.target.value)} className={fieldClass} /></label>
       <label className="block space-y-2 text-sm font-medium"><span>Пароль</span><input required type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={fieldClass} /></label>
       {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       <Button className="h-11 w-full bg-emerald-800 hover:bg-emerald-900" disabled={busy} type="submit">{busy ? "Входим…" : "Открыть рабочее пространство"}<ArrowUpRight /></Button>
-      <p className="text-xs leading-relaxed text-slate-400">Первый административный аккаунт создаётся при запуске панели. Реквизиты доступны владельцу локального проекта.</p>
+      <p className="text-xs leading-relaxed text-slate-400">Демоаккаунт открывает обзор команды, планы обучения и управление доступом.</p>
     </form></section>
   </main>;
 }
