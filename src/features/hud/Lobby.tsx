@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, Compass, UsersRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, Compass, Upload, UsersRound } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { GRADE_CHARACTER, setAvatar, useAvatar } from "@/features/city/avatar";
 import { useClientStore } from "@/lib/client-store";
-import { NAV } from "@/nav";
 import { CharacterSelect, HEROES } from "./CharacterSelect";
 import { EmployeeSelect } from "./EmployeeSelect";
 import { GoalStep } from "./GoalStep";
@@ -67,13 +66,18 @@ export function Lobby({ onStart, transitioning }: { onStart: (recommend: boolean
                     {gap && <p className="mt-3 text-sm">Нужно развить: {skillName(gap.skillId)} — {gap.current} из {gap.required}{gap.critical ? ", ключевой навык" : ""}.</p>}
                   </> : <p className="mt-3 text-sm text-muted-foreground">Следующий грейд не задан. Выберите цель на следующем шаге.</p>}
                 </div>}
-                <div className="border-t pt-4">
-                  <Link href="/hr" className="flex items-center justify-between rounded-lg p-2 text-sm font-medium hover:bg-muted"><span className="flex items-center gap-2"><UsersRound className="size-4" />Открыть HR-обзор</span><ArrowRight className="size-4" /></Link>
-                  <p className="px-2 text-xs text-muted-foreground">Компетенции команды, участие и следующие шаги</p>
-                  {NAV.filter((n) => !["/", "/hr"].includes(n.href)).map((n) => <Link key={n.href} href={n.href} className="mt-2 block px-2 text-sm underline">{n.label}</Link>)}
-                </div>
               </div> : <GoalStep />}
             </div>
+            <nav aria-label="Инструменты команды" className="grid shrink-0 grid-cols-2 gap-3 px-8 pb-4">
+              <Link href="/upload" className="rounded-lg border bg-background p-3 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <span className="flex items-center gap-2 text-sm font-medium"><Upload aria-hidden="true" className="size-4 shrink-0" />Импорт данных<ArrowRight aria-hidden="true" className="ml-auto size-4 shrink-0" /></span>
+                <span className="mt-1.5 block text-xs text-muted-foreground">Профили и история активностей</span>
+              </Link>
+              <Link href="/hr" className="rounded-lg border bg-background p-3 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <span className="flex items-center gap-2 text-sm font-medium"><UsersRound aria-hidden="true" className="size-4 shrink-0" />HR-панель<ArrowRight aria-hidden="true" className="ml-auto size-4 shrink-0" /></span>
+                <span className="mt-1.5 block text-xs text-muted-foreground">Команда и планы развития</span>
+              </Link>
+            </nav>
             <div className="space-y-2 border-t px-8 pb-7 pt-4">
               {step === 1
                 ? <Button className="w-full" size="lg" disabled={!ready} onClick={() => setStep(2)}>Дальше: цель<ArrowRight /></Button>
