@@ -51,18 +51,28 @@ export const candidatesGet = route((request) => {
   scopedEmployee(account, employeeId);
   return json({ candidates: candidatesFor(employeeId) });
 });
-function readSteps(value: unknown, employeeId: string): PlanStep[] {
+function stepContent(step: PlanStep): string {
+  return JSON.stringify([step.eventId, step.kind, step.dueDate, step.title, step.description, step.hours, step.skillId]);
+}
+function readSteps(value: unknown, employeeId: string, previous?: LearningPlan, preserveAssigned = false): PlanStep[] {
   if (!Array.isArray(value) || !value.length || value.length > 12) throw new HrError("В плане должно быть от 1 до 12 активностей");
   const candidates = candidatesFor(employeeId);
+  const completed = new Set(previous ? planView(previous).completedEventIds : []);
   const ids = new Set<string>();
-  return value.map((step: unknown): PlanStep => {
+  const steps = value.map((step: unknown): PlanStep => {
     if (!step || typeof step !== "object" || Array.isArray(step)) throw new HrError("Некорректная активность");
     const s = step as Record<string, unknown>;
     const eventId = string(s.eventId, "Активность");
     if (ids.has(eventId)) throw new HrError("Активность повторяется в плане");
     ids.add(eventId);
+    const existing = previous?.steps.find((item) => item.eventId === eventId);
+    if (existing && completed.has(eventId)) {
+      if (stepContent(s as unknown as PlanStep) !== stepContent(existing)) throw new HrError("Выполненный шаг нельзя изменить. Добавьте новый шаг.", 409);
+      return { ...existing };
+    }
+    if (existing && s.kind !== existing.kind) throw new HrError("Нельзя менять тип существующего шага");
     const dueDate = string(s.dueDate, "Срок");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !Number.isFinite(Date.parse(dueDate)) || new Date(dueDate).toISOString().slice(0, 10) !== dueDate || dueDate < AS_OF) throw new HrError(`Срок должен быть не раньше ${AS_OF}`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !Number.isFinite(Date.parse(dueDate)) || new Date(dueDate).toISOString().slice(0, 10) !== dueDate || (dueDate < AS_OF && dueDate !== existing?.dueDate)) throw new HrError(`Срок должен быть не раньше ${AS_OF}`);
     if (s.kind === "task") {
       if (!eventId.startsWith("task:") || typeof s.hours !== "number" || !Number.isFinite(s.hours) || s.hours < 0.25 || s.hours > 80) throw new HrError("Проверьте практический шаг и его длительность");
       const skillId = typeof s.skillId === "string" ? s.skillId : undefined;
@@ -70,17 +80,21 @@ function readSteps(value: unknown, employeeId: string): PlanStep[] {
       return { kind: "task", eventId, dueDate, title: string(s.title, "Название шага"), description: string(s.description, "Описание шага", 1500), hours: s.hours, skillId };
     }
     const candidate = candidates.find((c) => c.eventId === eventId);
+    // Existing assignments survive changes in the employee's skills; new courses must be eligible.
+    if (existing && preserveAssigned && (!candidate || dueDate === existing.dueDate)) return { eventId, dueDate };
     if (!candidate) throw new HrError("Активность больше не подходит сотруднику. Обновите подбор.");
     if (candidate.nextSession && dueDate < candidate.nextSession.slice(0, 10)) throw new HrError(`Срок раньше ближайшей сессии «${candidate.title}»`);
     return { eventId, dueDate };
   });
+  if ([...completed].some((id) => !ids.has(id))) throw new HrError("Выполненные шаги должны остаться в плане", 409);
+  return steps;
 }
 export const plansPost = route(async (request) => {
   const account = currentAccount(request);
   const data = await body(request);
   const action = string(data.action, "Действие");
   const state = hrState();
-  const plan = typeof data.id === "string" ? state.plans.find((p) => p.id === data.id) : undefined;
+  const plan = action !== "create" && typeof data.id === "string" ? state.plans.find((p) => p.id === data.id) : undefined;
   if (action !== "create" && !plan) throw new HrError("План не найден", 404);
   const employeeId = action === "create" ? string(data.employeeId, "Сотрудник") : plan!.employeeId;
   scopedEmployee(account, employeeId);
@@ -98,19 +112,23 @@ export const plansPost = route(async (request) => {
   } else {
     requirePermission(account, "plans");
     if (action === "create" || action === "update") {
-      if (plan && plan.state !== "draft") throw new HrError("Редактировать можно только черновик", 409);
+      if (plan?.state === "archived") throw new HrError("Архивный план нельзя редактировать", 409);
+      if (plan && data.expectedUpdatedAt !== plan.updatedAt) throw new HrError("План уже изменился. Закройте редактор, обновите список и откройте план снова.", 409);
       const title = string(data.title, "Название");
       const goal = string(data.goal, "Цель", 600);
       const note = typeof data.note === "string" ? data.note.trim() : "";
       if (note.length > 1500) throw new HrError("Комментарий слишком длинный");
-      const steps = readSteps(data.steps, employeeId);
+      const steps = readSteps(data.steps, employeeId, plan, true);
       const overlapping = state.plans.some((p) => p.id !== plan?.id && p.employeeId === employeeId && p.state !== "archived" && p.steps.some((s) => steps.some((next) => next.eventId === s.eventId)));
       if (overlapping) throw new HrError("Одна из активностей уже есть в действующем плане этого сотрудника", 409);
-      if (plan) Object.assign(plan, { title, goal, note, steps, updatedAt: new Date().toISOString() });
+      if (plan) {
+        const changed = title !== plan.title || goal !== plan.goal || note !== plan.note || JSON.stringify(steps.map(stepContent)) !== JSON.stringify(plan.steps.map(stepContent));
+        if (changed) Object.assign(plan, { title, goal, note, steps, response: "pending", updatedAt: new Date(Math.max(Date.now(), Date.parse(plan.updatedAt) + 1)).toISOString() });
+      }
       else state.plans.unshift({ id: randomUUID(), employeeId, title, goal, note, steps, state: "draft", response: "pending", createdBy: account.name, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), baselineHistoryIds: getHistory(employeeId).map((h) => h.record_id) });
     } else if (action === "publish") {
       if (plan!.state !== "draft") throw new HrError("Опубликовать можно только черновик", 409);
-      readSteps(plan!.steps, employeeId);
+      readSteps(plan!.steps, employeeId, plan);
       plan!.state = "published";
       plan!.updatedAt = new Date().toISOString();
     } else if (action === "revise") {
