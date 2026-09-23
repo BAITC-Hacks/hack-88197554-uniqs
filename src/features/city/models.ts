@@ -25,14 +25,14 @@ const furniture = (n: string) => `/models/furniture/${n}.gltf`;
 const restaurant = (n: string) => `/models/restaurant/${n}.gltf`;
 
 export const CITY = {
-  buildingA: city("building_A"),
-  buildingB: city("building_B"),
-  buildingC: city("building_C"),
-  buildingD: city("building_D"),
-  buildingE: city("building_E"),
-  buildingF: city("building_F"),
-  buildingG: city("building_G"),
-  buildingH: city("building_H"),
+  buildingA: city("building_A_withoutBase"),
+  buildingB: city("building_B_withoutBase"),
+  buildingC: city("building_C_withoutBase"),
+  buildingD: city("building_D_withoutBase"),
+  buildingE: city("building_E_withoutBase"),
+  buildingF: city("building_F_withoutBase"),
+  buildingG: city("building_G_withoutBase"),
+  buildingH: city("building_H_withoutBase"),
   bench: city("bench"),
   bush: city("bush"),
   streetlight: city("streetlight"),

@@ -1,115 +1,132 @@
 "use client";
 
 import type { EventType, Place } from "@/lib/types";
-import { PALETTE, Part } from "./kit";
-import { ModelOr } from "./models";
+import { PALETTE, Part, Sign, glass } from "./kit";
+import { CITY, Model, RESTAURANT } from "./models";
 
 const HALF_PI = Math.PI / 2;
 
-/** площадка обучения: узнаваемый силуэт по типу активности */
+/** площадка обучения: здание KayKit + узнаваемые детали и вывеска */
 export function Venue({ place }: { place: Place }) {
   const Body = BODIES[place.eventType!];
-  return (
-    <ModelOr kind="venue">
-      <Body />
-    </ModelOr>
-  );
+  return <Body place={place} />;
 }
 
-/** Академия: колонны и треугольный фронтон */
-function Academy() {
-  const stone = "#f4efe6";
-  const trim = "#8fb3d9";
+const VENUE_COLOR: Record<EventType, string> = {
+  course: "#3f6fb5",
+  workshop: "#c9613f",
+  mentoring: "#8a5a3c",
+  certification: "#4f5f8f",
+  meetup: "#5f9a4a",
+  onboarding: "#2f6f9f",
+  compliance: "#00879e",
+};
+
+/** мощёная площадка под зданием */
+function Pad({ w, d, z = 0 }: { w: number; d: number; z?: number }) {
+  return <Part position={[0, 0, z]} size={[w, 0.12, d]} color={PALETTE.sidewalk} shadow={false} />;
+}
+
+/** Академия: строгий корпус с портиком из колонн */
+function Academy({ place }: { place: Place }) {
   return (
     <group>
-      <Part size={[7.6, 0.5, 6.8]} color={PALETTE.stone} />
-      <Part position={[0, 0, 3.6]} size={[4, 0.25, 0.9]} color={PALETTE.stone} />
-      <Part position={[0, 0.5, -0.85]} size={[6.4, 3, 4.1]} color={stone} />
-      {[-2.8, -1.68, -0.56, 0.56, 1.68, 2.8].map((x) => (
-        <Part key={x} geo="cyl8" position={[x, 0.5, 2.3]} size={[0.28, 3, 0.28]} color={PALETTE.white} />
+      <Pad w={11} d={11} />
+      <Model url={CITY.buildingG} position={[0, 0.12, -1.2]} scale={3.6} />
+      {/* портик */}
+      <Part position={[0, 0.12, 3.4]} size={[7.4, 0.4, 2.6]} color={PALETTE.stone} />
+      {[-2.7, -0.9, 0.9, 2.7].map((x) => (
+        <Part key={x} geo="cyl" position={[x, 0.52, 3.9]} size={[0.28, 3.4, 0.28]} color={PALETTE.white} />
       ))}
-      <Part position={[0, 3.5, 0]} size={[7, 0.45, 5.8]} color={trim} />
-      <Part geo="prism" position={[0, 3.95, 0]} size={[7, 1.5, 5.8]} color={stone} />
-      <Part position={[0, 0.5, 1.2]} size={[1.3, 2, 0.12]} color={PALETTE.dark} />
+      <Part position={[0, 3.92, 3.4]} size={[7.6, 0.4, 2.8]} color={PALETTE.stone} />
+      <Part geo="prism" position={[0, 4.32, 3.4]} size={[7.6, 1.3, 2.8]} color={PALETTE.white} />
+      <Sign text={place.name} color={VENUE_COLOR.course} width={4.6} height={0.8} position={[0, 3.1, 4.9]} />
+      <Model url={CITY.bush} position={[-4.2, 0.12, 4]} scale={2.4} />
+      <Model url={CITY.bush} position={[4.2, 0.12, 4]} scale={2.4} />
     </group>
   );
 }
 
-/** Мастерские: низкий цех с пилообразной крышей и трубой */
-function Workshop() {
+/** Мастерские: цех с трубой и воротами */
+function Workshop({ place }: { place: Place }) {
   return (
     <group>
-      <Part position={[0, 0, 0]} size={[8, 2.6, 5.5]} color="#e2a47f" />
-      <Part position={[0, 1.2, 0]} size={[8.06, 0.8, 5.56]} color={PALETTE.glass} shadow={false} />
-      {[-8 / 3, 0, 8 / 3].map((x) => (
-        <Part key={x} geo="prism" position={[x, 2.6, 0]} size={[8 / 3, 1.3, 5.5]} color="#8d939c" />
-      ))}
-      <Part position={[-1, 0, 2.75]} size={[2.4, 2.1, 0.25]} color={PALETTE.dark} />
-      <Part geo="cyl8" position={[2.8, 0, -1.8]} size={[0.45, 6.5, 0.45]} color="#b5553f" />
-      <Part geo="cyl8" position={[2.8, 5.4, -1.8]} size={[0.5, 0.4, 0.5]} color={PALETTE.white} />
+      <Pad w={11} d={10} />
+      <Model url={CITY.buildingE} position={[0, 0.12, -0.6]} scale={3.4} />
+      <Part geo="cyl8" position={[3.2, 0.12, -2.4]} size={[0.5, 9, 0.5]} color="#b5553f" />
+      <Part geo="cyl8" position={[3.2, 9, -2.4]} size={[0.58, 0.5, 0.58]} color={PALETTE.dark} />
+      <Sign text={place.name} color={VENUE_COLOR.workshop} width={4.6} height={0.8} position={[0, 4.4, 2.2]} />
+      <Model url={CITY.dumpster} position={[-4.5, 0.12, 2.6]} scale={3} rotation={[0, 0.4, 0]} />
+      <Model url={CITY.boxA} position={[-3.6, 0.12, 3.4]} scale={3} />
+      <Model url={CITY.boxA} position={[-3.1, 0.12, 3.9]} scale={2.6} rotation={[0, 0.7, 0]} />
     </group>
   );
 }
 
-/** Кофейня наставников: домик с полосатым навесом и столиками */
-function Coffee() {
-  const stripes = 6;
+/** Кофейня наставников: домик с полосатым навесом и столиками на улице */
+function Coffee({ place }: { place: Place }) {
+  const stripes = 7;
   const width = 4.6;
   return (
     <group>
-      <Part position={[0, 0, -0.4]} size={[width, 2.4, 3.4]} color="#f6e7cf" />
-      <Part geo="prism" position={[0, 2.4, -0.4]} rotation={[0, HALF_PI, 0]} size={[3.9, 1.4, 5.1]} color={PALETTE.roof} />
-      <Part position={[-1.1, 0, 1.33]} size={[0.9, 1.8, 0.12]} color={PALETTE.dark} />
-      <Part position={[0.9, 0.9, 1.33]} size={[1.5, 0.9, 0.12]} color={PALETTE.glass} />
+      <Pad w={9} d={9} z={0.5} />
+      <Model url={CITY.buildingA} position={[0, 0.12, -1.6]} scale={3.2} />
       {Array.from({ length: stripes }, (_, i) => (
         <Part
           key={i}
           center
-          position={[-width / 2 + (width / stripes) * (i + 0.5), 2.05, 1.95]}
-          rotation={[0.45, 0, 0]}
-          size={[width / stripes, 0.08, 1.4]}
-          color={i % 2 ? PALETTE.white : "#e0584a"}
+          position={[-width / 2 + (width / stripes) * (i + 0.5), 3.1, 1.1]}
+          rotation={[0.5, 0, 0]}
+          size={[width / stripes, 0.06, 1.6]}
+          color={i % 2 ? PALETTE.white : "#d9534a"}
         />
       ))}
-      {[-1.4, 1.4].map((x) => (
-        <group key={x} position={[x, 0, 2.7]}>
-          <Part geo="cyl8" size={[0.4, 0.08, 0.4]} position={[0, 0.72, 0]} color={PALETTE.white} />
-          <Part geo="cyl8" size={[0.06, 0.72, 0.06]} color={PALETTE.dark} />
+      <Sign text={place.name} color={VENUE_COLOR.mentoring} width={4.4} height={0.75} position={[0, 4.1, 0.55]} />
+      {[-2.6, 2.6].map((x) => (
+        <group key={x} position={[x, 0.12, 2.6]}>
+          <Model url={RESTAURANT.tableRoundSmall} scale={0.85} />
+          <Model url={RESTAURANT.chairA} position={[0, 0, 0.95]} scale={0.85} rotation={[0, Math.PI, 0]} />
+          <Model url={RESTAURANT.chairA} position={[0, 0, -0.95]} scale={0.85} />
         </group>
       ))}
+      <Model url={RESTAURANT.menu} position={[-1.3, 0.12, 3.4]} scale={1.2} rotation={[0, 0.3, 0]} />
+      <Model url={CITY.bush} position={[3.8, 0.12, -0.5]} scale={2.2} />
     </group>
   );
 }
 
 /** Экзаменационный центр: строгий корпус с часами */
-function Exam() {
+function Exam({ place }: { place: Place }) {
   return (
     <group>
-      <Part size={[5, 4.2, 4.2]} color="#dfe6ef" />
-      <Part position={[0, 4.2, 0]} size={[5.4, 0.3, 4.6]} color="#5f7fa6" />
-      <Part position={[0, 1.5, 0]} size={[5.06, 0.6, 4.26]} color={PALETTE.glass} shadow={false} />
-      <Part position={[0, 0, 2.1]} size={[1.3, 1.4, 0.15]} color={PALETTE.dark} />
-      <group position={[0, 3.05, 2.12]}>
-        <Part center geo="cyl" rotation={[HALF_PI, 0, 0]} size={[0.95, 0.12, 0.95]} color="#5f7fa6" />
-        <Part center geo="cyl" rotation={[HALF_PI, 0, 0]} position={[0, 0, 0.04]} size={[0.8, 0.12, 0.8]} color={PALETTE.white} />
-        <Part center position={[0, 0.25, 0.12]} size={[0.09, 0.55, 0.04]} color={PALETTE.dark} shadow={false} />
-        <Part center position={[0.2, 0, 0.12]} size={[0.45, 0.09, 0.04]} color={PALETTE.dark} shadow={false} />
+      <Pad w={9} d={9} />
+      <Model url={CITY.buildingD} position={[0, 0.12, -0.8]} scale={3} />
+      <group position={[0, 5.4, 1.2]}>
+        <Part center geo="cyl" rotation={[HALF_PI, 0, 0]} size={[0.95, 0.12, 0.95]} color={VENUE_COLOR.certification} />
+        <Part center geo="cyl" rotation={[HALF_PI, 0, 0]} position={[0, 0, 0.05]} size={[0.8, 0.12, 0.8]} color={PALETTE.white} />
+        <Part center position={[0, 0.25, 0.13]} size={[0.09, 0.55, 0.04]} color={PALETTE.dark} shadow={false} />
+        <Part center position={[0.2, 0, 0.13]} size={[0.45, 0.09, 0.04]} color={PALETTE.dark} shadow={false} />
       </group>
+      <Sign text={place.name} color={VENUE_COLOR.certification} width={4.6} height={0.75} position={[0, 3.5, 1.25]} />
+      <Model url={CITY.bench} position={[-3.4, 0.12, 3]} scale={3} />
+      <Model url={CITY.bush} position={[3.4, 0.12, 3]} scale={2.2} />
     </group>
   );
 }
 
 /** Амфитеатр: полукруг ступенчатых рядов вокруг сцены */
-function Amphitheatre() {
+function Amphitheatre({ place }: { place: Place }) {
   const tiers = 4;
-  const segments = 9;
+  const segments = 11;
   const step = Math.PI / segments;
   return (
     <group>
-      <Part geo="cyl" size={[1.8, 0.4, 1.8]} color={PALETTE.wood} />
-      <Part geo="cyl" position={[0, 0.4, 0]} size={[1.5, 0.05, 1.5]} color="#e0b34a" shadow={false} />
+      <Part geo="cyl" size={[2.2, 0.45, 2.2]} color={PALETTE.wood} />
+      <Part geo="cyl" position={[0, 0.45, 0]} size={[1.9, 0.05, 1.9]} color="#e0b34a" shadow={false} />
+      <Part geo="cyl8" position={[-1.2, 0.5, -1]} size={[0.05, 1.3, 0.05]} color={PALETTE.dark} />
+      <Part geo="sphere" position={[-1.2, 1.8, -1]} size={[0.09, 0.09, 0.09]} color={PALETTE.dark} shadow={false} />
       {Array.from({ length: tiers }, (_, t) => {
-        const r = 2.4 + t * 0.8;
+        const r = 2.8 + t * 0.85;
         const w = 2 * r * Math.sin(step / 2) + 0.05;
         return Array.from({ length: segments }, (_, k) => {
           const a = HALF_PI + step * (k + 0.5);
@@ -118,61 +135,69 @@ function Amphitheatre() {
               key={`${t}-${k}`}
               position={[r * Math.sin(a), 0, r * Math.cos(a)]}
               rotation={[0, a, 0]}
-              size={[w, 0.45 * (t + 1), 0.82]}
+              size={[w, 0.42 * (t + 1), 0.85]}
               color={t % 2 ? "#e9dcc3" : "#d8c7a5"}
             />
           );
         });
       })}
+      <Sign text={place.name} color={VENUE_COLOR.meetup} width={3.6} height={0.7} position={[0, 2.2, 5.2]} />
+      <Part geo="cyl8" position={[0, 0, 5.2]} size={[0.07, 1.9, 0.07]} color={PALETTE.metal} />
     </group>
   );
 }
 
-/** Вокзал: платформа с навесом и короткий путь с вагоном */
-function Station() {
+/** Вокзал: платформа с навесом, путь и вагон */
+function Station({ place }: { place: Place }) {
   return (
     <group>
-      <Part position={[0, 0, 1]} size={[9, 0.6, 3]} color={PALETTE.stone} />
-      {[-3.6, 3.6].flatMap((x) =>
-        [0.2, 1.8].map((z) => <Part key={`${x}-${z}`} geo="cyl8" position={[x, 0.6, z]} size={[0.12, 2.8, 0.12]} color={PALETTE.dark} />),
+      <Part position={[0, 0, 1.2]} size={[11, 0.6, 3.4]} color={PALETTE.stone} />
+      {[-4.4, 0, 4.4].flatMap((x) =>
+        [0.2, 2.2].map((z) => <Part key={`${x}-${z}`} geo="cyl8" position={[x, 0.6, z]} size={[0.12, 3.2, 0.12]} color={PALETTE.dark} />),
       )}
-      <Part position={[0, 3.4, 1]} size={[8.4, 0.25, 2.6]} color="#5c7fa3" />
-      <Part position={[2, 0.6, 1.4]} size={[1.8, 0.45, 0.5]} color={PALETTE.wood} />
-      {Array.from({ length: 9 }, (_, i) => (
-        <Part key={i} position={[-4.4 + i * 1.1, 0, -1.8]} size={[0.3, 0.08, 1.7]} color={PALETTE.wood} shadow={false} />
+      <Part position={[0, 3.8, 1.2]} size={[10.4, 0.25, 3.2]} color="#5c7fa3" />
+      <Part geo="prism" position={[0, 4.05, 1.2]} size={[10.4, 0.8, 3.2]} color="#4d6c8c" />
+      <Model url={CITY.bench} position={[2.4, 0.6, 1.4]} scale={3} />
+      <Model url={CITY.bench} position={[-2.4, 0.6, 1.4]} scale={3} />
+      <Model url={CITY.trashA} position={[4.6, 0.6, 0.6]} scale={3} />
+      {Array.from({ length: 12 }, (_, i) => (
+        <Part key={i} position={[-6 + i * 1.1, 0, -2.2]} size={[0.3, 0.1, 2]} color={PALETTE.wood} shadow={false} />
       ))}
-      {[-1.3, -2.3].map((z) => (
-        <Part key={z} position={[0, 0.08, z]} size={[10, 0.1, 0.1]} color={PALETTE.greyDark} shadow={false} />
+      {[-1.5, -2.9].map((z) => (
+        <Part key={z} position={[0, 0.1, z]} size={[13, 0.12, 0.12]} color={PALETTE.greyDark} shadow={false} />
       ))}
-      <Part position={[-1.5, 0.3, -1.8]} size={[4, 1.9, 1.4]} color="#d9574a" />
-      <Part position={[-1.5, 1.2, -1.8]} size={[4.04, 0.5, 1.44]} color={PALETTE.glass} shadow={false} />
-      <Part position={[-1.5, 2.2, -1.8]} size={[4.1, 0.15, 1.5]} color={PALETTE.white} />
+      <group position={[-1.5, 0.3, -2.2]}>
+        <Part size={[5, 2.2, 1.7]} color="#d9574a" />
+        <Part position={[0, 1.2, 0]} size={[5.04, 0.6, 1.74]} material={glass("#bfe0f0", { opacity: 0.8 })} shadow={false} />
+        <Part position={[0, 2.2, 0]} size={[5.1, 0.2, 1.8]} color={PALETTE.white} />
+        <Part position={[2.7, 0.2, 0]} size={[0.5, 1.4, 1.5]} color="#b5453a" />
+      </group>
+      <Sign text={place.name} color={VENUE_COLOR.onboarding} width={3.6} height={0.7} position={[0, 4.45, 2.85]} />
     </group>
   );
 }
 
-/** ЦОН: плоское госздание с флагштоком */
-function Con() {
+/** ЦОН: госздание с флагом и очередью столбиков */
+function Con({ place }: { place: Place }) {
   return (
     <group>
-      <Part size={[7, 3.2, 4.4]} color="#eef0f3" />
-      <Part position={[0, 3.2, 0]} size={[7.3, 0.3, 4.7]} color="#2f6f9f" />
-      <Part position={[0, 1.2, 0]} size={[7.06, 0.9, 4.46]} color={PALETTE.glass} shadow={false} />
-      {[-2.4, -0.8, 0.8, 2.4].map((x) => (
-        <Part key={x} position={[x, 0, 2.25]} size={[0.25, 3.2, 0.15]} color="#2f6f9f" />
-      ))}
-      <Part position={[0, 2.45, 2.25]} size={[2.6, 0.5, 0.1]} color="#00a0c6" />
-      <Part position={[0, 0, 2.25]} size={[1.2, 1.8, 0.12]} color={PALETTE.dark} />
-      <group position={[3.1, 0, 2.6]}>
+      <Pad w={10} d={9} />
+      <Model url={CITY.buildingF} position={[0, 0.12, -0.6]} scale={3.2} />
+      <Sign text={place.name} color={VENUE_COLOR.compliance} width={3.2} height={0.75} position={[0, 3.6, 1.55]} />
+      <group position={[3.6, 0.12, 2.8]}>
         <Part geo="cyl8" size={[0.07, 7, 0.07]} color={PALETTE.greyDark} />
         <Part center position={[0.85, 6.35, 0]} size={[1.6, 1, 0.05]} color="#00afca" />
         <Part center geo="cyl" rotation={[HALF_PI, 0, 0]} position={[0.85, 6.4, 0.03]} size={[0.2, 0.03, 0.2]} color="#fec50c" shadow={false} />
       </group>
+      {[-1.6, -0.8, 0, 0.8, 1.6].map((x) => (
+        <Part key={x} geo="cyl8" position={[x, 0.12, 3.2]} size={[0.06, 0.9, 0.06]} color={PALETTE.metal} />
+      ))}
+      <Part position={[0, 0.95, 3.2]} size={[3.3, 0.04, 0.04]} color="#c0392b" shadow={false} />
     </group>
   );
 }
 
-const BODIES: Record<EventType, () => React.JSX.Element> = {
+const BODIES: Record<EventType, (p: { place: Place }) => React.JSX.Element> = {
   course: Academy,
   workshop: Workshop,
   mentoring: Coffee,

@@ -18,6 +18,8 @@ function vRoad(x: number, z0: number, z1: number, width: number): Road {
 }
 
 export const PLAZA = { x: 0, z: 0, radius: 9 };
+/** ширина тротуара по обе стороны дороги */
+export const SIDEWALK = 1.8;
 
 export const ROADS: Road[] = [
   // главный проспект север — юг (разрыв под амфитеатр)

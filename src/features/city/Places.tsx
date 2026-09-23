@@ -9,10 +9,10 @@ import { PLACES, TOWER_FLOOR_HEIGHT, TOWER_FLOORS } from "@/lib/world";
 import { Home, Soon, Yurt, soonHeight } from "./Buildings";
 import { Label } from "./Label";
 import { playerPosition } from "./playerState";
-import { Tower } from "./Tower";
+import { PODIUM_H, Tower } from "./Tower";
 import { Venue } from "./Venue";
 
-const VENUE_LABEL_HEIGHT = 7;
+const VENUE_LABEL_HEIGHT = 8.5;
 /** здание между камерой и персонажем на таком удалении по z «опускается», чтобы не закрывать его */
 const OCCLUDE_DEPTH = 18;
 const OCCLUDED_SCALE = 0.12;
@@ -20,13 +20,13 @@ const OCCLUDED_SCALE = 0.12;
 function labelHeight(place: Place) {
   switch (place.kind) {
     case "office":
-      return TOWER_FLOORS * TOWER_FLOOR_HEIGHT + 3;
+      return PODIUM_H + TOWER_FLOORS * TOWER_FLOOR_HEIGHT + 3;
     case "venue":
-      return place.eventType === "compliance" ? 8 : VENUE_LABEL_HEIGHT;
+      return place.eventType === "compliance" ? 9 : place.eventType === "meetup" ? 4 : VENUE_LABEL_HEIGHT;
     case "mentor":
-      return 5.2;
+      return 5.4;
     case "home":
-      return 4.6;
+      return 5.2;
     case "soon":
       return soonHeight(place) + 2;
   }
