@@ -1,13 +1,16 @@
 import { AS_OF, getEmployee, getEvent, getEvents, getHistory, getRoleProfile, getSkills } from "@/lib/store";
 import { getProfile } from "@/features/engine/profile";
+import { alreadyCompleted } from "@/features/engine/eligibility";
 import type { Employee } from "@/lib/types";
 import type { Candidate, EmployeeView, SkillOverview } from "./types";
 
 export function employeeView(employee: Employee): EmployeeView {
   const profile = getProfile(employee.employee_id)!;
-  const { target, effectiveSkills: skills, gradeProgress: progress } = profile;
+  const target = profile.target;
   const requirement = target ? getRoleProfile(target.role, target.grade) : undefined;
+  const skills = profile.effectiveSkills;
   const requirements = requirement?.required_skills ?? {};
+  const progress = profile.gradeProgress;
   return {
     id: employee.employee_id, name: employee.full_name, department: employee.department,
     role: employee.role, grade: employee.grade, target, skills, requirements,
@@ -35,11 +38,12 @@ export function candidatesFor(employeeId: string): Candidate[] {
   const employee = getEmployee(employeeId);
   if (!employee) return [];
   const view = employeeView(employee);
+  const profile = getProfile(employeeId)!;
   const history = getHistory(employeeId);
   const names = new Map(getSkills().map((s) => [s.skill_id, s.name]));
   return getEvents().flatMap((event): Candidate[] => {
     if (event.mandatory || !event.target_roles.includes(employee.role) || !event.target_grades.includes(employee.grade)) return [];
-    if (event.event_id !== "EV_036" && history.some((h) => h.event_id === event.event_id && h.status === "completed")) return [];
+    if (alreadyCompleted(event, profile)) return [];
     if (Object.entries(event.prerequisites).some(([s, level]) => (view.skills[s] ?? 0) < level)) return [];
     const nextSession = [...event.upcoming_sessions].sort().find((d) => d >= AS_OF) ?? null;
     if (event.format !== "self_paced" && !nextSession) return [];
