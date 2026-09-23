@@ -5,11 +5,25 @@
 import { getPlace } from "@/lib/world";
 import { useScene } from "../sceneState";
 import { Office } from "./Office";
+import { Academy } from "./Academy";
+import { Cafe } from "./Cafe";
+import { YurtInterior } from "./YurtInterior";
 
 export function Interior() {
   const interior = useScene((s) => s.interior);
   if (!interior) return null;
   const place = getPlace(interior.placeId);
   if (!place) return null;
-  return <Office key={`${place.id}:${interior.floor}`} place={place} />;
+  switch (place.kind) {
+    case "office":
+      return <Office key={`${place.id}:${interior.floor}`} place={place} />;
+    case "mentor":
+      return <YurtInterior key={place.id} />;
+    case "venue":
+      if (place.eventType === "course") return <Academy key={place.id} place={place} />;
+      if (place.eventType === "mentoring") return <Cafe key={place.id} place={place} />;
+      return <Office key={place.id} place={place} />;
+    default:
+      return <Office key={place.id} place={place} />;
+  }
 }

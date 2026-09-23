@@ -24,6 +24,8 @@ export interface Seat {
   position: [number, number, number];
   /** куда смотрит сидящий */
   yaw: number;
+  /** сидит на полу (корпе у дастархана) */
+  floor?: boolean;
 }
 
 export interface WalkBounds {

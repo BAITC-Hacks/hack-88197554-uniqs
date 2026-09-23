@@ -61,6 +61,10 @@ export const OFFICE_PLANS: OfficePlan[] = [
 
 const OFFICE_IDS = ["office-backend", "office-frontend", "office-data", "office-qa", "office-product", "office-hr", "office-sales", "office-support"];
 
+export function usesOfficePlan(place: Place): boolean {
+  return place.kind !== "mentor" && !(place.kind === "venue" && (place.eventType === "course" || place.eventType === "mentoring"));
+}
+
 export function officePlanFor(place: Place): OfficePlan {
   const index = OFFICE_IDS.indexOf(place.id);
   if (index >= 0) return OFFICE_PLANS[index];

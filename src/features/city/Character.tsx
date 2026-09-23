@@ -9,13 +9,14 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import { LoopOnce, LoopRepeat, type AnimationAction, type Group } from "three";
 import { CHARACTERS, prepareClone, type CharacterId } from "./models";
 
-export type CharacterAction = "idle" | "walk" | "run" | "sit" | "cheer" | "interact" | "sitdown";
+export type CharacterAction = "idle" | "walk" | "run" | "sit" | "sitfloor" | "cheer" | "interact" | "sitdown";
 
 const CLIP: Record<CharacterAction, string> = {
   idle: "Idle",
   walk: "Walking_A",
   run: "Running_A",
   sit: "Sit_Chair_Idle",
+  sitfloor: "Sit_Floor_Idle",
   sitdown: "Sit_Chair_Down",
   cheer: "Cheer",
   interact: "Interact",

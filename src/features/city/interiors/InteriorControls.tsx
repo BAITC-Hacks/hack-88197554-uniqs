@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { actions, useClientStore } from "@/lib/client-store";
 import { getPlace, panelForPlace } from "@/lib/world";
 import { sceneActions, useScene } from "../sceneState";
-import { officePlanFor } from "./officePlans";
+import { officePlanFor, usesOfficePlan } from "./officePlans";
 
 export function InteriorControls() {
   const interior = useScene((s) => s.interior);
@@ -20,7 +20,7 @@ export function InteriorControls() {
   const action = place.kind === "mentor" ? "Наставник" : place.kind === "venue" ? "Активности" : place.kind === "office" ? "Карьерная траектория" : "Информация";
   return (
     <div className="pointer-events-auto absolute top-20 left-[340px] z-10 flex items-center gap-4 rounded-xl bg-white/95 px-4 py-3 text-slate-800 shadow-sm ring-1 ring-black/10">
-      <div><div className="text-sm font-medium">{place.name}</div><div className="text-xs text-slate-500">{officePlanFor(place).title} · WASD — ходить</div></div>
+      <div><div className="text-sm font-medium">{place.name}</div><div className="text-xs text-slate-500">{usesOfficePlan(place) ? `${officePlanFor(place).title} · ` : ""}WASD — ходить</div></div>
       <Button size="sm" variant="outline" onClick={() => actions.openPanel(panelForPlace(place), place.id)}>{action}</Button>
       <Button size="sm" disabled={fade} onClick={() => sceneActions.exit()}>Выйти · Esc</Button>
     </div>

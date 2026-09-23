@@ -3,6 +3,8 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
+import { getPlace } from "@/lib/world";
+import { usesOfficePlan } from "./interiors/officePlans";
 import { playerPosition } from "./playerState";
 import { getScene } from "./sceneState";
 
@@ -13,7 +15,8 @@ const ZOOM_MAX = 2.2;
 /** дальше этого камера не догоняет, а прыгает (телепорт) */
 const SNAP_DISTANCE = 25;
 /** Изометрический обзор комнат, как в офисном прототипе Елнура. */
-const INTERIOR_ZOOM = 1.8;
+const OFFICE_ZOOM = 1.8;
+const ROOM_ZOOM = 0.62;
 
 const desired = new Vector3();
 const lookAt = new Vector3();
@@ -37,24 +40,27 @@ export function CameraRig() {
   useFrame(({ camera }, rawDelta) => {
     const dt = Math.min(rawDelta, 0.05);
     const z = zoom.current;
-    const mode = getScene().mode;
-    if (mode !== z.mode) {
-      z.mode = mode;
-      z.target = mode === "interior" ? INTERIOR_ZOOM : 1;
+    const scene = getScene();
+    const inside = scene.mode === "interior";
+    const place = scene.interior ? getPlace(scene.interior.placeId) : undefined;
+    const overview = inside && !!place && usesOfficePlan(place);
+    const view = inside ? (overview ? "office" : "room") : "street";
+    if (view !== z.mode) {
+      z.mode = view;
+      z.target = overview ? OFFICE_ZOOM : inside ? ROOM_ZOOM : 1;
     }
     z.value += (z.target - z.value) * (1 - Math.exp(-dt * 8));
     // при приближении камера опускается: y растёт быстрее, чем z
     const k = z.value;
-    const inside = mode === "interior";
     desired.set(0, OFFSET.y * Math.pow(k, 1.25), OFFSET.z * Math.pow(k, 0.85));
-    if (!inside) desired.add(playerPosition);
+    if (!overview) desired.add(playerPosition);
     if (!z.ready || camera.position.distanceTo(desired) > SNAP_DISTANCE) {
       camera.position.copy(desired);
       z.ready = true;
     } else {
       camera.position.lerp(desired, 1 - Math.exp(-dt * 6));
     }
-    if (inside) lookAt.set(0, 0.2, 0);
+    if (overview) lookAt.set(0, 0.2, 0);
     else lookAt.set(playerPosition.x, playerPosition.y + 1.1, playerPosition.z);
     camera.lookAt(lookAt);
   });
