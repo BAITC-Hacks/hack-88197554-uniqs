@@ -5,6 +5,7 @@
 import { getPlace } from "@/lib/world";
 import { useScene } from "../sceneState";
 import { Office } from "./Office";
+import { BackendOffice } from "./backend/BackendOffice";
 import { Academy } from "./Academy";
 import { Cafe } from "./Cafe";
 import { YurtInterior } from "./YurtInterior";
@@ -17,6 +18,7 @@ export function Interior() {
   if (!place) return null;
   switch (place.kind) {
     case "office":
+      if (place.id === "office-backend") return <BackendOffice key={`${place.id}:${interior.floor}`} floor={interior.floor} />;
       if (place.id === "office-frontend") return <FrontendOffice key={`${place.id}:${interior.floor}`} floor={interior.floor} />;
       return <Office key={`${place.id}:${interior.floor}`} place={place} />;
     case "mentor":

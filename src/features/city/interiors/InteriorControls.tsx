@@ -5,6 +5,7 @@ import { actions, useClientStore } from "@/lib/client-store";
 import { getPlace, panelForPlace } from "@/lib/world";
 import { sceneActions, useScene } from "../sceneState";
 import { officePlanFor, usesOfficePlan } from "./officePlans";
+import { BackendOfficeControls } from "./backend/BackendOfficeControls";
 import { FrontendOfficeControls } from "./frontend/FrontendOfficeControls";
 
 export function InteriorControls() {
@@ -19,6 +20,7 @@ export function InteriorControls() {
       <Button disabled={fade} onClick={() => sceneActions.enter(place.id)}>Войти · {place.name}</Button>
     </div>
   );
+  if (place.id === "office-backend") return <BackendOfficeControls />;
   if (place.id === "office-frontend") return <FrontendOfficeControls />;
   const action = place.kind === "mentor" ? "Наставник" : place.kind === "venue" ? "Активности" : place.kind === "office" ? "Карьерная траектория" : "Информация";
   return (

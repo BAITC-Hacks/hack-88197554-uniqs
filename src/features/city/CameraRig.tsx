@@ -45,10 +45,11 @@ export function CameraRig() {
     const place = scene.interior ? getPlace(scene.interior.placeId) : undefined;
     const overview = inside && !!place && usesOfficePlan(place);
     const frontend = overview && place?.id === "office-frontend";
-    const view = inside ? (frontend ? "frontend-office" : overview ? "office" : "room") : "street";
+    const backend = overview && place?.id === "office-backend";
+    const view = inside ? (backend ? "backend-office" : frontend ? "frontend-office" : overview ? "office" : "room") : "street";
     if (view !== z.mode) {
       z.mode = view;
-      z.target = frontend ? 2.2 : overview ? OFFICE_ZOOM : inside ? ROOM_ZOOM : 1;
+      z.target = backend || frontend ? 2.2 : overview ? OFFICE_ZOOM : inside ? ROOM_ZOOM : 1;
     }
     z.value += (z.target - z.value) * (1 - Math.exp(-dt * 8));
     // при приближении камера опускается: y растёт быстрее, чем z
