@@ -5,8 +5,10 @@ import { ArrowRight, BriefcaseBusiness, Compass, UsersRound } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { GRADE_CHARACTER, setAvatar, useAvatar } from "@/features/city/avatar";
 import { useClientStore } from "@/lib/client-store";
 import { NAV } from "@/nav";
+import { CharacterSelect, HEROES } from "./CharacterSelect";
 import { EmployeeSelect } from "./EmployeeSelect";
 import { skillName } from "./data";
 
@@ -15,13 +17,30 @@ export function Lobby({ onStart, transitioning }: { onStart: (recommend: boolean
   const employeeId = useClientStore((s) => s.employeeId);
   const ready = !!profile && profile.employee.employee_id === employeeId;
   const gap = profile?.gaps.find((g) => g.critical) ?? profile?.gaps[0];
+  const grade = useClientStore((s) => s.profile?.employee.grade ?? s.employees.find((e) => e.employee_id === s.employeeId)?.grade);
+  const hero = useAvatar() ?? GRADE_CHARACTER[grade ?? "Junior"];
   return (
     <section aria-label="Стартовое лобби" className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-slate-900/35 backdrop-blur-sm">
-      <Card className="w-[920px] gap-0 overflow-visible bg-white py-0 shadow-2xl">
-        <CardContent className="grid grid-cols-[0.9fr_1.1fr] p-0">
-          <div className="flex flex-col justify-between rounded-l-xl bg-slate-900 p-9 text-white">
-            <div><div className="flex items-center gap-2 text-sm text-slate-300"><BriefcaseBusiness className="size-4" />Город карьеры</div><h1 className="mt-8 text-3xl font-semibold leading-tight">Ваш следующий<br />шаг начинается здесь</h1><p className="mt-4 text-sm leading-relaxed text-slate-300">Найдите подходящую активность для своей цели и наблюдайте, как растёт ваш профессиональный опыт.</p></div>
-            <ol className="mt-10 space-y-4 text-sm text-slate-200"><li>01 · Посмотрите свою траекторию</li><li>02 · Получите совет наставника</li><li>03 · Сделайте шаг к цели</li></ol>
+      <Card className="w-[1200px] gap-0 overflow-visible bg-white py-0 shadow-2xl">
+        <CardContent className="grid grid-cols-[1.45fr_1fr] p-0">
+          <div className="flex min-h-[620px] flex-col rounded-l-xl bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 text-white">
+            <div className="px-8 pt-7">
+              <div className="flex items-center gap-2 text-sm text-slate-300"><BriefcaseBusiness className="size-4" />Выбор героя</div>
+              <h1 className="mt-2 text-2xl font-semibold">Город карьеры</h1>
+              <p className="mt-1 text-sm text-slate-300">Класс подбирается по грейду, но выбор за вами: этот герой пойдёт по городу.</p>
+            </div>
+            <div className="relative min-h-[380px] flex-1">
+              <CharacterSelect selected={hero} onSelect={setAvatar} />
+            </div>
+            <div className="grid grid-cols-4 gap-2 px-8 pb-7">
+              {HEROES.map((h) => {
+                const active = h.id === hero;
+                return <button key={h.id} type="button" aria-pressed={active} onClick={() => setAvatar(h.id)} className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${active ? "border-emerald-400 bg-emerald-400/15" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+                  <span className="block text-sm font-medium">{h.name}</span>
+                  <span className="block text-xs text-slate-400">для {h.grade}{h.grade === grade ? " · ваш грейд" : ""}</span>
+                </button>;
+              })}
+            </div>
           </div>
           <div className="space-y-5 p-8">
             <div><h2 className="text-lg font-semibold">Войти как сотрудник</h2><p className="mt-1 text-sm text-muted-foreground">Выберите свой профиль для этого демо.</p></div>

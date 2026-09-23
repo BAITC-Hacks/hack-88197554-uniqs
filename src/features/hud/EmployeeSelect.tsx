@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { setAvatar } from "@/features/city/avatar";
 import { actions, useClientStore } from "@/lib/client-store";
 import type { Employee } from "@/lib/types";
 
@@ -14,7 +15,9 @@ export function EmployeeSelect({ expanded = false }: { expanded?: boolean }) {
     <Select
       value={employeeId}
       onValueChange={(id) => {
-        if (id) actions.selectEmployee(id);
+        if (!id) return;
+        setAvatar(null);
+        actions.selectEmployee(id);
       }}
     >
       <SelectTrigger size={expanded ? "default" : "sm"} className={expanded ? "w-full bg-background" : "w-60 bg-background"} aria-label="Выбрать сотрудника">

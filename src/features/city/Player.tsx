@@ -4,11 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { Group, Mesh } from "three";
 import { actions, getState, useClientStore } from "@/lib/client-store";
-import type { Grade } from "@/lib/types";
 import { GROUND, INTERACT_DISTANCE, PLACES, getPlace } from "@/lib/world";
+import { GRADE_CHARACTER, useAvatar } from "./avatar";
 import { Character, type CharacterAction } from "./Character";
 import { GEO, mat } from "./kit";
-import type { CharacterId } from "./models";
 import { playerPosition, playerYaw } from "./playerState";
 import { getScene, interactables, sceneActions, walkBounds } from "./sceneState";
 
@@ -19,14 +18,6 @@ const BODY_PAD = 0.4;
 const START: [number, number] = [0, 8];
 /** места с интерьером: E у двери входит внутрь, а не открывает панель */
 const ENTERABLE = new Set(["office", "venue", "mentor", "home", "soon"]);
-
-/** внешность по грейду: класс приключенца растёт вместе с карьерой */
-const GRADE_CHARACTER: Record<Grade, CharacterId> = {
-  Junior: "rogue",
-  Middle: "knight",
-  Senior: "mage",
-  Lead: "barbarian",
-};
 
 const KEYS: Record<string, "up" | "down" | "left" | "right"> = {
   KeyW: "up",
@@ -139,7 +130,7 @@ export function Player() {
   const motion = useRef({ seq: -1, spawnSeq: -1, gestureSeq: -1, gestureUntil: 0, yaw: 0, sitting: false });
   const action = useRef<CharacterAction>("idle");
   const grade = useClientStore((s) => s.profile?.employee.grade ?? s.employees.find((e) => e.employee_id === s.employeeId)?.grade);
-  const model = GRADE_CHARACTER[grade ?? "Junior"];
+  const model = useAvatar() ?? GRADE_CHARACTER[grade ?? "Junior"];
 
   useMovementKeys();
   useInteractKeys();
