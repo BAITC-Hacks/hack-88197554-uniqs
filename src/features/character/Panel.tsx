@@ -23,12 +23,22 @@ import { useHero } from "./useHero";
 const FORMAT: Record<string, string> = { office: "офис", hybrid: "гибрид", remote: "удалённо" };
 type TabId = "stats" | "gear" | "trophies" | "journal";
 
-/** пока лист открыт, герой в городе стоит */
+/** пока лист открыт, герой в городе стоит; общие хоткеи при этом молчат, поэтому Esc и C ловим сами */
 function useLockControls() {
   useEffect(() => {
     const prev = getScene().controlsLocked;
     sceneActions.lockControls(true);
-    return () => sceneActions.lockControls(prev);
+    function onKeyDown(e: KeyboardEvent) {
+      const t = e.target;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+      if (t instanceof HTMLElement && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
+      if (e.code === "Escape" || e.code === "KeyC") actions.closePanel();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      sceneActions.lockControls(prev);
+    };
   }, []);
 }
 
