@@ -41,7 +41,7 @@ export function hrState(): HrState {
 /** Update the existing demo account once, including a store already cached during HMR. */
 function migrateDemoAccess() {
   const state = runtime.__cqHrState;
-  if (!state || state.demoAccessVersion === 1) return;
+  if (!state || state.demoAccessVersion === 2) return;
   const admin = state.accounts.find(account => account.id === "hr-admin" && account.login === HR_DEMO_ACCESS.login);
   if (admin) {
     admin.passwordHash = hashPassword(HR_DEMO_ACCESS.password);
@@ -49,7 +49,7 @@ function migrateDemoAccess() {
     loginAttempts().delete(admin.login);
     fs.writeFileSync(path.join(dir(), "admin-access.txt"), `Career Quest — HR\nLogin: ${HR_DEMO_ACCESS.login}\nPassword: ${HR_DEMO_ACCESS.password}\nURL: /hr\n`, { mode: 0o600 });
   }
-  state.demoAccessVersion = 1;
+  state.demoAccessVersion = 2;
   saveHrState();
 }
 export function saveHrState() {

@@ -34,7 +34,7 @@ function Login({ onLogin, initialError }: { onLogin: (account: Account) => void;
         <p className="mb-2 font-semibold">Доступ для демо</p>
         <div className="flex justify-between gap-4"><span>Логин</span><code className="select-all font-semibold">{HR_DEMO_ACCESS.login}</code></div>
         <div className="mt-1 flex justify-between gap-4"><span>Пароль</span><code className="select-all font-semibold">{HR_DEMO_ACCESS.password}</code></div>
-        <p className="mt-2 text-xs text-emerald-800">Логин — латиницей, пароль — русскими буквами.</p>
+        <p className="mt-2 text-xs text-emerald-800">Логин и пароль — латиницей.</p>
       </aside>
       <label className="block space-y-2 text-sm font-medium"><span>Логин</span><input autoFocus required autoComplete="username" value={login} onChange={(e) => setLogin(e.target.value)} className={fieldClass} /></label>
       <label className="block space-y-2 text-sm font-medium"><span>Пароль</span><input required type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={fieldClass} /></label>
