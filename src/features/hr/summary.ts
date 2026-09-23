@@ -1,7 +1,7 @@
 import { getProfile } from "@/features/engine/profile";
 import { recommend } from "@/features/engine/recommend";
 import { getAllHistory, getEmployees, getEvents, getRoleProfile } from "@/lib/store";
-import type { DevEvent, HrSummary, Profile } from "@/lib/types";
+import type { DevEvent, Employee, HrSummary, Profile } from "@/lib/types";
 
 function noStepReason(profile: Profile, events: DevEvent[]): string {
   if (!profile.target) {
@@ -31,8 +31,8 @@ function noStepReason(profile: Profile, events: DevEvent[]): string {
 }
 
 /** Пересчитывается из актуального store при каждом запросе API или страницы. */
-export function getHrReport() {
-  const employees = getEmployees();
+export function getHrReport(employees: Employee[] = getEmployees()) {
+  const employeeIds = new Set(employees.map(employee => employee.employee_id));
   const events = getEvents();
   const skillCounts = new Map<
     string,
@@ -79,6 +79,7 @@ export function getHrReport() {
 
   const participation = new Map<string, HrSummary["participation"][number]>();
   for (const record of getAllHistory()) {
+    if (!employeeIds.has(record.employee_id)) continue;
     const status = record.status;
     if (status !== "completed" && status !== "no_show" && status !== "declined" && status !== "dropped") continue;
     const count = participation.get(record.event_id) ?? {

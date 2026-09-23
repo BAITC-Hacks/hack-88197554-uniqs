@@ -9,6 +9,7 @@ import { GRADES } from "@/lib/types";
 import { AccessPanel } from "./AccessPanel";
 import { ApiError, fieldClass, hrRequest } from "./client";
 import { HR_DEMO_ACCESS } from "./demo-access";
+import { HistoricalReport } from "./HistoricalReport";
 import { PlanEditor, PlansPanel } from "./PlansPanel";
 import { ROLE_LABELS, type Account, type EmployeeView, type HrWorkspace, type PlanView } from "./types";
 
@@ -34,7 +35,7 @@ function Login({ onLogin, initialError }: { onLogin: (account: Account) => void;
         <p className="mb-2 font-semibold">Доступ для демо</p>
         <div className="flex justify-between gap-4"><span>Логин</span><code className="select-all font-semibold">{HR_DEMO_ACCESS.login}</code></div>
         <div className="mt-1 flex justify-between gap-4"><span>Пароль</span><code className="select-all font-semibold">{HR_DEMO_ACCESS.password}</code></div>
-        <p className="mt-2 text-xs text-emerald-800">Логин — латиницей, пароль — русскими буквами.</p>
+        <p className="mt-2 text-xs text-emerald-800">Логин и пароль — латиницей.</p>
       </aside>
       <label className="block space-y-2 text-sm font-medium"><span>Логин</span><input autoFocus required autoComplete="username" value={login} onChange={(e) => setLogin(e.target.value)} className={fieldClass} /></label>
       <label className="block space-y-2 text-sm font-medium"><span>Пароль</span><input required type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={fieldClass} /></label>
@@ -91,6 +92,7 @@ function Workspace({ account, onLogout }: { account: Account; onLogout: () => vo
         {!viewer.permissions.overview && !viewer.permissions.profiles && viewer.role !== "employee" && <p className="rounded-xl bg-white p-6 text-sm text-slate-500">Для обзора компетенций администратор должен предоставить соответствующее разрешение.</p>}
       </>}
       {data && activeTab === "plans" && <PlansPanel data={data} onReload={reload} onEdit={(plan) => { const employee = data.employees.find((e) => e.id === plan.employeeId); if (employee) setEditor({ employee, plan }); }} onCreate={() => { if (focused) setEditor({ employee: focused }); else setTab("overview"); }} />}
+      {data && activeTab === "overview" && <HistoricalReport data={data} />}
       {data && activeTab === "access" && <AccessPanel data={data} onSaved={reload} />}
     </div>
     {editor && data && <PlanEditor key={editor.plan?.id ?? editor.employee.id} employee={editor.employee} plan={editor.plan} data={data} onClose={() => setEditor(null)} onSaved={async () => { setEditor(null); setTab("plans"); await reload(); }} />}
