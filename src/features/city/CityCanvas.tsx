@@ -12,7 +12,7 @@ import { CameraRig } from "./CameraRig";
 import { EXTRAS } from "./extras";
 import { Hint3D } from "./Hint3D";
 import { Interior } from "./interiors/Interior";
-import { ElevatorPanel } from "./interiors/ElevatorPanel";
+import { InteriorControls } from "./interiors/InteriorControls";
 import { preloadInteriors, preloadStreet } from "./models";
 import { Player } from "./Player";
 import { useScene } from "./sceneState";
@@ -74,7 +74,7 @@ export default function CityCanvas() {
         <ambientLight intensity={0.15} />
         <directionalLight
           position={SUN}
-          intensity={2.6}
+          intensity={mode === "street" ? 2.6 : 1.6}
           color="#fff1d8"
           castShadow
           shadow-mapSize={[4096, 4096]}
@@ -98,7 +98,7 @@ export default function CityCanvas() {
         className="pointer-events-none absolute inset-0 z-20 bg-slate-950 transition-opacity duration-300"
         style={{ opacity: fade ? 1 : 0 }}
       />
-      <ElevatorPanel />
+      <InteriorControls />
     </>
   );
 }

@@ -12,8 +12,8 @@ const ZOOM_MIN = 0.28;
 const ZOOM_MAX = 2.2;
 /** дальше этого камера не догоняет, а прыгает (телепорт) */
 const SNAP_DISTANCE = 25;
-/** в интерьере камера ближе и чуть ниже */
-const INTERIOR_ZOOM = 0.55;
+/** Изометрический обзор комнат, как в офисном прототипе Елнура. */
+const INTERIOR_ZOOM = 1.8;
 
 const desired = new Vector3();
 const lookAt = new Vector3();
@@ -45,14 +45,17 @@ export function CameraRig() {
     z.value += (z.target - z.value) * (1 - Math.exp(-dt * 8));
     // при приближении камера опускается: y растёт быстрее, чем z
     const k = z.value;
-    desired.set(0, OFFSET.y * Math.pow(k, 1.25), OFFSET.z * Math.pow(k, 0.85)).add(playerPosition);
+    const inside = mode === "interior";
+    desired.set(0, OFFSET.y * Math.pow(k, 1.25), OFFSET.z * Math.pow(k, 0.85));
+    if (!inside) desired.add(playerPosition);
     if (!z.ready || camera.position.distanceTo(desired) > SNAP_DISTANCE) {
       camera.position.copy(desired);
       z.ready = true;
     } else {
       camera.position.lerp(desired, 1 - Math.exp(-dt * 6));
     }
-    lookAt.set(playerPosition.x, playerPosition.y + 1.1, playerPosition.z);
+    if (inside) lookAt.set(0, 0.2, 0);
+    else lookAt.set(playerPosition.x, playerPosition.y + 1.1, playerPosition.z);
     camera.lookAt(lookAt);
   });
 

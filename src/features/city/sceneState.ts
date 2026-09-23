@@ -4,6 +4,7 @@
 // Тот же паттерн, что client-store (useSyncExternalStore), но живёт внутри фичи city.
 
 import { useSyncExternalStore } from "react";
+import { actions } from "@/lib/client-store";
 import { getPlace } from "@/lib/world";
 import type { CharacterAction } from "./Character";
 
@@ -115,6 +116,9 @@ function transition(apply: () => void) {
 export const sceneActions = {
   /** войти в здание: лобби (floor -1) либо сразу зал */
   enter(placeId: string, floor = -1) {
+    if (!getPlace(placeId) || state.fade) return;
+    actions.closePanel();
+    actions.clearMoveTarget();
     transition(() => {
       interactables.clear();
       setScene({ mode: "interior", interior: { placeId, floor }, seated: null, bubbles: {} });
@@ -131,20 +135,16 @@ export const sceneActions = {
     });
   },
 
-  /** выйти на улицу к двери здания; keepPosition — телепорт из HUD уже поставил персонажа */
-  exit(keepPosition = false) {
+  /** Выход к двери либо к месту быстрого перемещения. true сохраняет прежний контракт keepPosition. */
+  exit(destination?: [number, number] | boolean) {
     const cur = state.interior;
     if (!cur) return;
-    const place = getPlace(cur.placeId);
+    const entrance = Array.isArray(destination) ? destination : destination === true ? null : getPlace(cur.placeId)?.entrance;
+    actions.closePanel();
+    actions.clearMoveTarget();
     transition(() => {
       interactables.clear();
-      setScene({
-        mode: "street",
-        interior: null,
-        seated: null,
-        bubbles: {},
-        spawn: place && !keepPosition ? { position: place.entrance, yaw: 0, seq: ++spawnSeq } : state.spawn,
-      });
+      setScene({ mode: "street", interior: null, seated: null, bubbles: {}, spawn: entrance ? { position: entrance, yaw: 0, seq: ++spawnSeq } : state.spawn });
     });
   },
 

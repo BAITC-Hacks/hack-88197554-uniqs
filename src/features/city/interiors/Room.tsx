@@ -4,7 +4,7 @@
 
 import { Html } from "@react-three/drei";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
 import { MeshStandardMaterial, type Mesh } from "three";
 import { actions } from "@/lib/client-store";
 import { GEO, PALETTE, Part, mat, noiseTexture } from "../kit";
@@ -28,6 +28,7 @@ interface RoomProps {
   floor?: string;
   wall?: string;
   trim?: string;
+  wallHeight?: number;
   /** выход на +z стене; false — без двери (этажи башни выходят через лифт) */
   exit?: boolean;
   /** куда встаёт персонаж при входе: по умолчанию у двери, лицом внутрь */
@@ -46,12 +47,13 @@ function floorMat(color: string) {
   return m;
 }
 
-export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b4", exit = true, spawn, spawnYaw = Math.PI, children }: RoomProps) {
+export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b4", wallHeight = WALL_H, exit = true, spawn, spawnYaw = Math.PI, children }: RoomProps) {
   const hw = w / 2;
   const hd = d / 2;
   const sx = spawn?.[0] ?? 0;
   const sz = spawn?.[1] ?? hd - 1.6;
-  useEffect(() => {
+  // Сначала границы, затем дочерние Blocker регистрируют мебель и перегородки.
+  useLayoutEffect(() => {
     setWalkBounds({ minX: -hw + 0.6, maxX: hw - 0.6, minZ: -hd + 0.6, maxZ: hd - 0.6, blockers: [] });
     sceneActions.setSpawn([sx, sz], spawnYaw);
   }, [hw, hd, sx, sz, spawnYaw]);
@@ -65,9 +67,9 @@ export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} material={mat("#b9b3a6")} receiveShadow>
         <planeGeometry args={[w + 30, d + 30]} />
       </mesh>
-      <Part position={[0, 0, -hd]} size={[w + 0.4, WALL_H, 0.4]} color={wall} flat={false} />
-      <Part position={[-hw, 0, 0]} size={[0.4, WALL_H, d]} color={wall} flat={false} />
-      <Part position={[hw, 0, 0]} size={[0.4, WALL_H, d]} color={wall} flat={false} />
+      <Part position={[0, 0, -hd]} size={[w + 0.4, wallHeight, 0.4]} color={wall} flat={false} />
+      <Part position={[-hw, 0, 0]} size={[0.4, wallHeight, d]} color={wall} flat={false} />
+      <Part position={[hw, 0, 0]} size={[0.4, wallHeight, d]} color={wall} flat={false} />
       <Part position={[0, 0, hd]} size={[w + 0.4, FRONT_WALL_H, 0.4]} color={wall} flat={false} />
       {/* плинтус */}
       <Part position={[0, 0, -hd + 0.25]} size={[w, 0.12, 0.1]} color={trim} shadow={false} />
@@ -82,14 +84,16 @@ export function Room({ w, d, floor = "#d9d2c4", wall = "#f2ede4", trim = "#c9c2b
 /** выход на улицу: проём в низком парапете, коврик и светящаяся табличка, ничего не заслоняет камеру */
 function ExitDoor({ z }: { z: number }) {
   return (
+    <>
     <group position={[0, 0, z]}>
       <Part position={[0, 0, -0.35]} size={[2.6, 0.05, 1.2]} color="#5a6270" shadow={false} />
       <Part position={[-1.5, 0, 0]} size={[0.3, 1.1, 0.5]} color={PALETTE.dark} />
       <Part position={[1.5, 0, 0]} size={[0.3, 1.1, 0.5]} color={PALETTE.dark} />
       <Part position={[0, 1.1, 0]} size={[3.3, 0.12, 0.5]} color={PALETTE.dark} shadow={false} />
       <Part position={[0, 1.22, 0]} size={[1.5, 0.32, 0.3]} color="#3fae5a" emissive="#2ecc71" intensity={0.9} shadow={false} />
-      <Interactable id="exit" label="Выйти на улицу" position={[0, 0, -0.9]} radius={2} onInteract={() => sceneActions.exit()} />
     </group>
+    <Interactable id="exit" label="Выйти на улицу" position={[0, 0, z - 0.9]} radius={2} onInteract={() => sceneActions.exit()} />
+    </>
   );
 }
 
