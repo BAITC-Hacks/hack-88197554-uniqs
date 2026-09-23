@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { XpReward } from "@/features/character/XpReward";
 import { actions, getState } from "@/lib/client-store";
 import { getScene, sceneActions, useScene } from "@/features/city/sceneState";
 import { CityMap } from "./CityMap";
@@ -71,6 +72,7 @@ export function Hud() {
       <PanelHost />
       <CityMap open={map} onOpenChange={setMap} />
       </>}
+      <XpReward />
     </div>
   );
 }
